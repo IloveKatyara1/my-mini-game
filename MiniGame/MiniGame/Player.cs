@@ -8,40 +8,40 @@ namespace MiniGame
 {
     internal class Player
     {
-        private int Health = 100;
-        private int Armor = 0;
-        private int Damage = 10;
+        private int health = 100;
+        private int armor = 0;
+        private int damage = 10;
 
         public void TakeDamage(int damage)
         {
-            damage -= Armor;
+            damage -= armor;
 
             if (damage <= 0)
                damage = 0;
-            else if (damage > Health)
-               damage = Health;
+            else if (damage > health)
+               damage = health;
 
-            Health -= damage;
+            health -= damage;
         }
 
         public void HealHealth(int heal)
         {
-            int Different = 100 - Health;
+            int Different = 100 - health;
 
             if (Different < heal)
                heal = Different;
 
-            Health += heal;
+            health += heal;
         }
 
         public string Statistic()
         {
-            return $"Health: {Health} / 100 \nArmor: {Armor} \nDamage: {Damage}";
+            return $"Health: {health} / 100 \nArmor: {armor} \nDamage: {damage}";
         }
 
         public int ShowDamage()
         {
-            return Damage;
+            return damage;
         }
     }
 }
