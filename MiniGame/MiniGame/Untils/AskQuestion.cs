@@ -1,26 +1,33 @@
-﻿namespace MiniGame.Untils
+﻿using System.Runtime.InteropServices;
+
+namespace MiniGame.Untils
 {
     internal class AskQuestion
     {
         public char AskQuestionMain(string question, params char[] letters)
         {
-            Console.WriteLine(question);
+            char Res = '\0';
+            bool IsAllOk = false;
 
-            char.TryParse(Console.ReadLine(), out char Char);
-            bool WasMatch = false;
-
-            foreach (var item in letters)
-            {
-                WasMatch = item == Char;
-            }
-
-            while (!WasMatch)
+            while(!IsAllOk)
             {
                 Console.WriteLine(question);
-                char.TryParse(Console.ReadLine(), out Char);
+
+                bool WasMatch = char.TryParse(Console.ReadLine(), out Res);
+
+                if (WasMatch)
+                    Res = Char.ToUpper(Res);
+
+                foreach (var item in letters)
+                {
+                    if (!IsAllOk)
+                        IsAllOk = item == Res;
+                    else
+                        break;
+                }
             }
 
-            return Char;
+            return Res;
         }
     }
 }

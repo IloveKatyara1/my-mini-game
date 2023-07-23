@@ -34,9 +34,9 @@ namespace MiniGame
             health += heal;
         }
 
-        public string Statistic()
+        public void ShowStatistic()
         {
-            return $"Health: {health} / 100 \nArmor: {armor} \nDamage: {damage}";
+            Console.WriteLine($"Health: {health} / 100 \nArmor: {armor} \nDamage: {damage}");
         }
 
         public int ShowDamage()
