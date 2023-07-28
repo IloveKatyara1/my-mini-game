@@ -9,12 +9,16 @@ namespace MiniGame
     internal class Entity
     {
         public int Health { get; protected set; }
+        public readonly int StartHealth;
         //public int Armor { get; protected set; }
         public int Damage { get; protected set; }
 
-        public Entity(int heath, /*int armor,*/ int damage)
+        private Random random = new Random();
+
+        public Entity(int health, /*int armor,*/ int damage)
         {
-            Health = heath;
+            StartHealth = health;
+            Health = health;
             //Armor = armor;
             Damage = damage;
         }
@@ -33,7 +37,7 @@ namespace MiniGame
 
         public void HealHealth(int heal)
         {
-            int Different = 100 - Health;
+            int Different = StartHealth - Health;
 
             if (Different < heal)
                 heal = Different;
@@ -41,9 +45,14 @@ namespace MiniGame
             Health += heal;
         }
 
-        public void ShowStatistic()
+        public string GetHealth() 
         {
-            Console.WriteLine($"Health: {Health} / 100 \nArmor: {/* Armor */ 0} \nDamage: {Damage}");
+            return $"{Health}/{StartHealth}";
+        }
+
+        public int AttackSomebody()
+        {
+            return Damage + random.Next(-3, 4);
         }
     }
 }

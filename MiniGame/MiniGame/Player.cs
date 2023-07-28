@@ -16,10 +16,15 @@ namespace MiniGame
         //{
         //    Armor += amount;
         //}
-        
+
         //public void ModifyDamage(int amount)
         //{
         //    Damage += amount;
         //}
+
+        public void ShowStatistic()
+        {
+            Console.WriteLine($"Your statistic: \nHealth: {base.GetHealth()}\nArmor: {/* Armor */ 0} \nDamage: {Damage}");
+        }
     }
 }

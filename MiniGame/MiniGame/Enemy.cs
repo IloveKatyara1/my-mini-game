@@ -8,18 +8,16 @@ namespace MiniGame
 {
     internal class Enemy : Entity
     {
-        private Random random = new Random();
+        private string _difficulty;
 
-        private int _health;
-        private int _damage;
-
-        public Enemy() : base(0, 0)
+        public Enemy(string difficulty, int health, int damage) : base(health, damage)
         {
-            _health = random.Next(80, 121);
-            _damage = random.Next(5, 15);
+            _difficulty = difficulty;
+        }
 
-            base.Health = _health;
-            base.Damage = _damage;
+        public void ShowStatistic()
+        {
+            Console.WriteLine($"Opponent statistic: \nHealth: {base.GetHealth()} \nArmor: {/* Armor */ 0} \nDamage: {Damage} \n Difficulty: {_difficulty}");
         }
     }
 }
