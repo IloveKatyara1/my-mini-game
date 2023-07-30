@@ -1,22 +1,19 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
 
 namespace MiniGame.Untils
 {
     internal class AskQuestion
     {
-        public char AskQuestionMain(string question, params char[] letters)
+        public string AskQuestionMain(string question, params string[] letters)
         {
-            char Res = '\0';
+            string Res = "";
             bool IsAllOk = false;
 
-            while(!IsAllOk)
+            while (!IsAllOk)
             {
                 Console.WriteLine(question);
 
-                bool WasMatch = char.TryParse(Console.ReadLine(), out Res);
-
-                if (WasMatch)
-                    Res = Char.ToUpper(Res);
+                Res = Console.ReadLine().ToUpper();
 
                 foreach (var item in letters)
                 {

@@ -15,7 +15,7 @@ namespace MiniGame
             _difficulty = difficulty;
         }
 
-        public void ShowStatistic()
+        public override void ShowStatistic()
         {
             Console.WriteLine($"Opponent statistic: \nHealth: {base.GetHealth()} \nArmor: {/* Armor */ 0} \nDamage: {Damage} \n Difficulty: {_difficulty}");
         }

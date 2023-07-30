@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MiniGame
 {
-    internal class Entity
+    internal abstract class Entity
     {
         public int Health { get; protected set; }
         public readonly int StartHealth;
@@ -54,5 +54,7 @@ namespace MiniGame
         {
             return Damage + random.Next(-3, 4);
         }
+
+        public abstract void ShowStatistic();
     }
 }

@@ -13,7 +13,7 @@ namespace MiniGame
         {
             Console.WriteLine($"\nwhere would you like to go?");
 
-            char Res = _askQuestion.AskQuestionMain("L/M/R", 'L', 'M', 'R');
+            string Res = _askQuestion.AskQuestionMain("L/M/R", "L", "M", "R");
 
             int randomNumber = random.Next(1, 101);
 
@@ -46,18 +46,18 @@ namespace MiniGame
         {
             Console.WriteLine($"\nplease, choose the action");
 
-            char Res = _askQuestion.AskQuestionMain($"Look statistic: S;\nlook inventory: I;\ncontinue your way: W;", 'S', 'I', 'W');
+            string Res = _askQuestion.AskQuestionMain($"Look statistic: S;\nlook inventory: I;\ncontinue your way: W;", "S", "I", "W");
 
             switch (Res)
             {
-                case 'W':
+                case "W":
                     WhereGo();
                     break;
-                case 'S':
+                case "S":
                     _player.ShowStatistic();
                     break;
-                case 'I':
-                    Console.WriteLine("Will soon");
+                case "I":
+                    LookInventory();
                     break;
             }
 
@@ -93,34 +93,80 @@ namespace MiniGame
 
             Console.WriteLine($"what will you do? \n");
 
-            char Res = _askQuestion.AskQuestionMain($"Look your statistic: S;\nlook inventory: I;\nlook opponent's static: O;\nattack him: A", 'S', 'I', 'O', 'A');
+            string Res = _askQuestion.AskQuestionMain($"Look your statistic: S;\nlook inventory: I;\nlook opponent's static: O;\nattack him: A", "S", "I", "O", "A");
 
             switch (Res)
             {
-                case 'S':
+                case "S":
                     _player.ShowStatistic();
                     break;
-                case 'I':
-                    Console.WriteLine("Will soon");
+                case "I":
+                    LookInventory();
                     break;
-                case 'O':
+                case "O":
                     enemy.ShowStatistic();
                     break;
-                case 'A':
-                    int damage = _player.AttackSomebody();
+                case "A":
+                    int Damage = _player.AttackSomebody();
 
-                    enemy.TakeDamage(damage);
+                    enemy.TakeDamage(Damage);
 
-                    Console.WriteLine($"you attacked him for {damage}hp, him hp is {enemy.GetHealth()}\n");
+                    Console.WriteLine($"you attacked him for {Damage}hp, him hp is {enemy.GetHealth()}\n");
 
-                    damage = enemy.AttackSomebody();
-                    _player.TakeDamage(damage);
+                    Damage = enemy.AttackSomebody();
+                    _player.TakeDamage(Damage);
 
-                    Console.WriteLine($"he attacked you for {damage}hp, him hp is {_player.GetHealth()}\n");
+                    Console.WriteLine($"he attacked you for {Damage}hp, him hp is {_player.GetHealth()}\n");
                     break;
             }
 
             FightingWhitEnemy(enemy);
+        }
+
+        public void LookInventory()
+        {
+            int lenght = _player.ShowInventory();
+
+            if (lenght == 0)
+                return;
+
+            List<string> ArrayStr = new List<string>();
+
+            for(int i = 1; i < lenght; i++)
+            {
+                ArrayStr.Add(i.ToString());
+            }
+
+            ArrayStr.Add("E");
+
+            string Res = _askQuestion.AskQuestionMain($"select item by type number, or exit: E", ArrayStr.ToArray());
+
+            if (Res == "E")
+                return;
+
+            var item = _player.GetItemByNum(int.Parse(Res));
+
+            string Name = item.Keys.FirstOrDefault();
+            int Armor = item[Name]["armor"];
+
+            Console.WriteLine($"You selected: {Name}, Armor: {Armor}");
+
+            string ResSecond = _askQuestion.AskQuestionMain($"what do you want to do whith this item \nPut on the item: P; \nThrow away the item: T;\nBack to all items: B;\nExit: E", "P", "T", "B", "E");
+
+            switch(ResSecond) 
+            {
+                case "P":
+                    Console.WriteLine("will soon");
+                    break;
+                case "T":
+                    Console.WriteLine("will soon");
+                    break;
+                case "B":
+                    LookInventory();
+                    break;
+                case "E":
+                    return;
+            }
         }
     }
 }
