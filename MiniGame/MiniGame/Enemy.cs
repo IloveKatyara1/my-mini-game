@@ -17,7 +17,7 @@ namespace MiniGame
 
         public override void ShowStatistic()
         {
-            Console.WriteLine($"Opponent statistic: \nHealth: {base.GetHealth()} \nArmor: {/* Armor */ 0} \nDamage: {Damage} \n Difficulty: {_difficulty}");
+            Console.WriteLine($"Opponent statistic: \nHealth: {base.GetHealth()} \nArmor: {/* Armor */ 0} \nDamage: {Damage} \nDifficulty: {_difficulty}");
         }
     }
 }

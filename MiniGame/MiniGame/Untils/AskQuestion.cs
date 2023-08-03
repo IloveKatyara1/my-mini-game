@@ -11,6 +11,7 @@ namespace MiniGame.Untils
 
             while (!IsAllOk)
             {
+                Console.WriteLine();
                 Console.WriteLine(question);
 
                 Res = Console.ReadLine().ToUpper();
