@@ -10,22 +10,22 @@ namespace MiniGame
     {
         public int Health { get; protected set; }
         public readonly int StartHealth;
-        //public int Armor { get; protected set; }
+        public int Armor { get; protected set; }
         public int Damage { get; protected set; }
 
         private Random random = new Random();
 
-        public Entity(int health, /*int armor,*/ int damage)
+        public Entity(int health, int armor, int damage)
         {
             StartHealth = health;
             Health = health;
-            //Armor = armor;
+            Armor = armor;
             Damage = damage;
         }
 
         public void TakeDamage(int damage)
         {
-            //damage -= Armor;
+            damage -= Armor;
 
             if (damage <= 0)
                 damage = 0;

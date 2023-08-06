@@ -6,9 +6,14 @@ namespace MiniGame
     internal class MainLogic
     {
         private readonly AskQuestion _askQuestion = new();
-        private readonly Inventory _inventory = new();
         private readonly Player _player = new();
+        private readonly Inventory _inventory;
         Random random = new Random();
+
+        public MainLogic()
+        {
+            _inventory = new(_player);
+        }
 
         public void WhereGo()
         {
@@ -120,12 +125,12 @@ namespace MiniGame
 
                     enemy.TakeDamage(Damage);
 
-                    Console.WriteLine($"You attacked him for {Damage}hp, him hp is {enemy.GetHealth()}\n");
+                    Console.WriteLine($"You attacked him for {Damage - enemy.Armor}hp, him hp is {enemy.GetHealth()}\n");
 
                     Damage = enemy.AttackSomebody();
                     _player.TakeDamage(Damage);
 
-                    Console.WriteLine($"He attacked you for {Damage}hp, your hp is {_player.GetHealth()}\n");
+                    Console.WriteLine($"He attacked you for {Damage - _player.Armor}hp, your hp is {_player.GetHealth()}\n");
                     break;
             }
 

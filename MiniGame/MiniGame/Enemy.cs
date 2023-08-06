@@ -10,7 +10,7 @@ namespace MiniGame
     {
         private string _difficulty;
 
-        public Enemy(string difficulty, int health, int damage) : base(health, damage)
+        public Enemy(string difficulty, int health, int damage) : base(health, 0, damage)
         {
             _difficulty = difficulty;
         }
