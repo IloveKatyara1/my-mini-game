@@ -122,15 +122,18 @@ namespace MiniGame
                     break;
                 case "A":
                     int Damage = _player.AttackSomebody();
+                    int ShowHit = Damage - enemy.Armor < 0 ? 0 : Damage - enemy.Armor;
 
                     enemy.TakeDamage(Damage);
 
-                    Console.WriteLine($"You attacked him for {Damage - enemy.Armor}hp, him hp is {enemy.GetHealth()}\n");
+                    Console.WriteLine($"You attacked him for {ShowHit}hp, him hp is {enemy.GetHealth()}\n");
 
                     Damage = enemy.AttackSomebody();
+                    ShowHit = Damage - _player.Armor < 0 ? 0 : Damage - enemy.Armor;
+
                     _player.TakeDamage(Damage);
 
-                    Console.WriteLine($"He attacked you for {Damage - _player.Armor}hp, your hp is {_player.GetHealth()}\n");
+                    Console.WriteLine($"He attacked you for {ShowHit}hp, your hp is {_player.GetHealth()}\n");
                     break;
             }
 

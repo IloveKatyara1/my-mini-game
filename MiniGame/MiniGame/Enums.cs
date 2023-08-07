@@ -11,6 +11,7 @@ namespace MiniGame
         Helmet,
         Body,
         Legs,
+        RHand,
         LHand
     }
 }
