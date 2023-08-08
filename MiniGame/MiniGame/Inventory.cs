@@ -29,13 +29,10 @@ namespace MiniGame
         {
             _player = player;
 
-            AddNewItem("armor1", "armor", 1, BodyPart.Helmet);
-            AddNewItem("Devil Helmet", "armor", 3, BodyPart.Helmet);
-            AddNewItem("armor2", "armor", 2, BodyPart.Body);
-            AddNewItem("armor3", "armor", 3, BodyPart.Legs);
-            AddNewItem("damage1", "damage", 1, BodyPart.LHand);
-            AddNewItem("damage2", "damage", 2, BodyPart.LHand);
-            AddNewItem("armor3", "armor", 3, BodyPart.RHand);
+            AddNewItem("Metallic panties", "armor", 3, BodyPart.Legs);
+            AddNewItem("Toothpick", "damage", 1, BodyPart.LHand);
+            EquipNewItem(Armor[0], 0);
+            EquipNewItem(Weapon[0], 0);
         }
 
         public void AddNewItem(string name, string type, int units, BodyPart bodyPart)
@@ -158,10 +155,9 @@ namespace MiniGame
                 case "T":
                     MakeDefaultEquipped(itemKey, item);
                     break;
-                case "B":
-                    ShowInventory();
-                    break;
             }
+
+            ShowInventory();
         }
 
         private void MakeDefaultEquipped(BodyPart itemKey, Dictionary<string, string> item)
@@ -172,8 +168,6 @@ namespace MiniGame
                 Equipped[itemKey] = new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } };
             else
                 Equipped[BodyPart.LHand] = new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } };
-
-            ShowInventory();
         }
 
         private void AddToArrIndexes(char symbol, int arrCount, ref List<string> arrIndexes)
@@ -187,7 +181,6 @@ namespace MiniGame
         private void ChooseActianForClothes(int index, List<Dictionary<string, string>> arr)
         {
             Dictionary<string, string> item = arr[index];
-            BodyPart CurrentBodyPart = FindCategoryByString(item["bodyPart"]);
 
             Console.WriteLine($"You selected: {item["name"]}, {item["type"]}: {item["units"]}");
 
@@ -196,44 +189,46 @@ namespace MiniGame
             switch (ResSecond)
             {
                 case "P":
-                    if (Equipped[CurrentBodyPart]["name"] != "null")
-                    {
-                        Console.WriteLine($"You heve equipped {item["name"]} have {item["type"]} {item["units"]}. Do you want change it?");
-                        string Res = _askQuestion.AskQuestionMain($"Y/N", "Y", "N");
-
-                        if (Res == "N")
-                        {
-                            ShowInventory();
-                            return;
-                        }
-
-                        var equippedItem = Equipped[CurrentBodyPart];
-
-                        AddNewItem(equippedItem["name"], equippedItem["type"], int.Parse(equippedItem["units"]), FindCategoryByString(item["bodyPart"]));
-                        FindWhatNeedsModification(equippedItem["type"], -int.Parse(equippedItem["units"]));
-                    }
-
-                    Equipped[CurrentBodyPart] = new Dictionary<string, string>
-                    {
-                        { "name", item["name"] },
-                        { "units", item["units"] },
-                        { "type", item["type"] }
-                    };
-
-                    RemoveIndex(item["type"], index);
-                    FindWhatNeedsModification(item["type"], int.Parse(item["units"]));
-                    ShowInventory();
+                    EquipNewItem(item, index);
                     break;
                 case "T":
                     RemoveIndex(item["type"], index);
                     Console.WriteLine("The item was removed");
                     break;
-                case "B":
-                    ShowInventory();
-                    break;
                 case "E":
                     return;
             }
+
+            ShowInventory();
+        }
+
+        private void EquipNewItem(Dictionary<string, string> item, int index)
+        {
+            BodyPart CurrentBodyPart = FindCategoryByString(item["bodyPart"]);
+
+            if (Equipped[CurrentBodyPart]["name"] != "null")
+            {
+                Console.WriteLine($"You already have the equipped {Equipped[CurrentBodyPart]["name"]} have {Equipped[CurrentBodyPart]["type"]} {Equipped[CurrentBodyPart]["units"]}, do you want to change it to {item["name"]} have {item["type"]} {item["units"]}?");
+                string Res = _askQuestion.AskQuestionMain($"Y/N", "Y", "N");
+
+                if (Res == "N")
+                    return;
+
+                var equippedItem = Equipped[CurrentBodyPart];
+
+                AddNewItem(equippedItem["name"], equippedItem["type"], int.Parse(equippedItem["units"]), FindCategoryByString(item["bodyPart"]));
+                FindWhatNeedsModification(equippedItem["type"], -int.Parse(equippedItem["units"]));
+            }
+
+            Equipped[CurrentBodyPart] = new Dictionary<string, string>
+            {
+                { "name", item["name"] },
+                { "units", item["units"] },
+                { "type", item["type"] }
+            };
+
+            RemoveIndex(item["type"], index);
+            FindWhatNeedsModification(item["type"], int.Parse(item["units"]));
         }
 
         private void RemoveIndex(string type, int index) 

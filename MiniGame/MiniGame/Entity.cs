@@ -9,7 +9,7 @@ namespace MiniGame
     internal abstract class Entity
     {
         public int Health { get; protected set; }
-        public readonly int StartHealth;
+        public int StartHealth { get; protected set; }
         public int Armor { get; protected set; }
         public int Damage { get; protected set; }
 

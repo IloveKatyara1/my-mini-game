@@ -23,14 +23,12 @@ namespace MiniGame
 
             int randomNumber = random.Next(1, 101);
 
-            int SimpleOpponent = 70;
-            int DifficultOpponent = 15;
-            int EmptyRoom = 10;
+            int SimpleOpponent = 77;
+            int DifficultOpponent = 10;
+            int EmptyRoom = 8;
             int Something = 5;
 
-            Console.WriteLine(randomNumber);
-
-            if (randomNumber <= SimpleOpponent)
+            if (randomNumber <= SimpleOpponent || randomNumber <= SimpleOpponent + DifficultOpponent && _player.Lvl < 4)
             {
                 CreateNewEnemy("simple");
             }
@@ -76,16 +74,27 @@ namespace MiniGame
         {
             Console.WriteLine($"You found a {difficulty} opponent");
 
-            int Health = random.Next(80, 121); 
-            int Damage = random.Next(5, 15);
+            int Health = random.Next(85, 111); 
+            int Damage = random.Next(7, 13);
+            int Armor = random.Next(0, 4);
 
             if (difficulty == "difficult")
             {
                 Health += 5;
                 Damage += 2;
+                Armor += 2;
             }
 
-            Enemy NewEnemy = new(difficulty, Health, Damage);
+            if(_player.Lvl >= 5)
+            {
+                int PlusNum = _player.Lvl - 4;
+
+                Health += PlusNum;
+                Damage += PlusNum;
+                Armor += PlusNum;
+            }
+
+            Enemy NewEnemy = new(difficulty, Health, Damage, Armor);
             NewEnemy.ShowStatistic();
 
             FightingWhitEnemy(NewEnemy);
@@ -93,18 +102,6 @@ namespace MiniGame
 
         public void FightingWhitEnemy(Enemy enemy)
         {
-            if(_player.Health <= 0)
-            {
-                _player.ShowStatistic();
-                Console.WriteLine("You died");
-                Environment.Exit(0);
-                return;
-            } else if(enemy.Health <= 0)
-            {
-                Console.WriteLine($"You killed the enemy your hp is {_player.GetHealth()}");
-                return;
-            }
-
             Console.WriteLine($"What will you do? \n");
 
             string Res = _askQuestion.AskQuestionMain($"Look your statistic: S;\nLook inventory: I;\nLook opponent's static: O;\nAttack him: A", "S", "I", "O", "A");
@@ -128,12 +125,25 @@ namespace MiniGame
 
                     Console.WriteLine($"You attacked him for {ShowHit}hp, him hp is {enemy.GetHealth()}\n");
 
+                    if (enemy.Health <= 0)
+                    {
+                        Console.WriteLine($"You killed the opponent your hp is {_player.GetHealth()}");
+                        return;
+                    }
+
                     Damage = enemy.AttackSomebody();
                     ShowHit = Damage - _player.Armor < 0 ? 0 : Damage - enemy.Armor;
 
                     _player.TakeDamage(Damage);
 
                     Console.WriteLine($"He attacked you for {ShowHit}hp, your hp is {_player.GetHealth()}\n");
+
+                    if (_player.Health <= 0)
+                    {
+                        _player.ShowStatistic();
+                        Console.WriteLine("You died");
+                        Environment.Exit(0);
+                    }
                     break;
             }
 
