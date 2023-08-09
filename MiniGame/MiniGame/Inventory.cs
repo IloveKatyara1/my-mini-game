@@ -15,24 +15,24 @@ namespace MiniGame
         private readonly Player _player;
 
         public List<Dictionary<string, string>> Armor { get; private set; } = new List<Dictionary<string, string>>();
-        public List<Dictionary<string, string>> Weapon { get; private set; } = new List<Dictionary<string, string>>();
+        public List<Dictionary<string, string>> WeaponInventory { get; private set; } = new List<Dictionary<string, string>>();
         public Dictionary<BodyPart, Dictionary<string, string>> Equipped { get; private set; } = new Dictionary<BodyPart, Dictionary<string, string>>()
         {
             {BodyPart.Helmet, new Dictionary<string, string> { {"name", "null" }, { "units", "null" }, { "type", "armor" } } },
             {BodyPart.Body, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
             {BodyPart.Legs, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
-            {BodyPart.RHand, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
-            {BodyPart.LHand, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } } }
+            {BodyPart.Shield, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
+            {BodyPart.Weapon, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } } }
         };
 
         public Inventory(Player player)
         {
             _player = player;
 
-            AddNewItem("Metallic panties", "armor", 3, BodyPart.Legs);
-            AddNewItem("Toothpick", "damage", 1, BodyPart.LHand);
+            AddNewItem("Metallic panties", "armor", 1, BodyPart.Legs);
+            AddNewItem("Toothpick", "damage", 1, BodyPart.Weapon);
             EquipNewItem(Armor[0], 0);
-            EquipNewItem(Weapon[0], 0);
+            EquipNewItem(WeaponInventory[0], 0);
         }
 
         public void AddNewItem(string name, string type, int units, BodyPart bodyPart)
@@ -45,7 +45,7 @@ namespace MiniGame
                     Armor.Add(newItem);
                     break;
                 case "damage":
-                    Weapon.Add(newItem);
+                    WeaponInventory.Add(newItem);
                     break;
             }
         }
@@ -55,7 +55,7 @@ namespace MiniGame
             Console.WriteLine($"\nYour Inventory:");
             ShowEquippedItems();
             ShowOneCategory(Armor, "armor", 'A');
-            ShowOneCategory(Weapon, "damage", 'W');
+            ShowOneCategory(WeaponInventory, "damage", 'W');
 
             ChooseItem();
         }
@@ -103,7 +103,7 @@ namespace MiniGame
             List<string> Indexes = new List<string>();
 
             AddToArrIndexes('A', Armor.Count, ref Indexes);
-            AddToArrIndexes('W', Weapon.Count, ref Indexes);
+            AddToArrIndexes('W', WeaponInventory.Count, ref Indexes);
             AddToArrIndexes('E', Equipped.Count, ref Indexes);
 
             Indexes.Add("E");
@@ -124,7 +124,7 @@ namespace MiniGame
                     ChooseActianForClothes(CurrentIndex, Armor);
                     break;
                 case 'W':
-                    ChooseActianForClothes(CurrentIndex, Weapon);
+                    ChooseActianForClothes(CurrentIndex, WeaponInventory);
                     break;
                 default:
                     Console.WriteLine("Default");
@@ -164,10 +164,10 @@ namespace MiniGame
         {
             FindWhatNeedsModification(item["type"], -int.Parse(item["units"]));
 
-            if (itemKey != BodyPart.LHand)
+            if (itemKey != BodyPart.Weapon)
                 Equipped[itemKey] = new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } };
             else
-                Equipped[BodyPart.LHand] = new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } };
+                Equipped[BodyPart.Weapon] = new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } };
         }
 
         private void AddToArrIndexes(char symbol, int arrCount, ref List<string> arrIndexes)
@@ -202,7 +202,7 @@ namespace MiniGame
             ShowInventory();
         }
 
-        private void EquipNewItem(Dictionary<string, string> item, int index)
+        public void EquipNewItem(Dictionary<string, string> item, int index)
         {
             BodyPart CurrentBodyPart = FindCategoryByString(item["bodyPart"]);
 
@@ -239,8 +239,10 @@ namespace MiniGame
                     Armor.RemoveAt(index);
                     break;
                 case "damage":
-                    Weapon.RemoveAt(index);
+                    WeaponInventory.RemoveAt(index);
                     break;
+                default:
+                    throw new ArgumentException($"Failed modification. Unknown category: {type}");
             }
         }
 
@@ -251,8 +253,8 @@ namespace MiniGame
                 "Helmet" => BodyPart.Helmet,
                 "Body" => BodyPart.Body,
                 "Legs" => BodyPart.Legs,
-                "LHand" => BodyPart.LHand,
-                "RHand" => BodyPart.RHand,
+                "Weapon" => BodyPart.Weapon,
+                "Shield" => BodyPart.Shield,
                 _ => throw new ArgumentException("Invalid body part string"),
             };
         }
@@ -267,6 +269,8 @@ namespace MiniGame
                 case "damage":
                     _player.ModifyDamage(units);
                     break;
+                default:
+                    throw new ArgumentException($"Failed modification. Unknown category: {type}");
             }
         }
     }

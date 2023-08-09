@@ -27,7 +27,8 @@ namespace MiniGame
 
         public override void ShowStatistic()
         {
-            Console.WriteLine($"Your statistic: \nHealth: {base.GetHealth()}\nArmor: {Armor} \nDamage: {Damage}\nCompleted rooms: {_completedRooms}");
+            Console.WriteLine($"Your statistics:\nHealth: {base.GetHealth()}\nArmor: {Armor}\nDamage: {Damage}\nCompleted rooms: {_completedRooms}\nYour level: {Lvl}\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - _completedRooms}"
+);
         }
 
         public void AddNewCompletedRoom()
@@ -38,7 +39,7 @@ namespace MiniGame
             {
                 _needCompleteRoomsForNextLvl *= 3;
 
-                Console.WriteLine($"You upgraded your level, now it's {++Lvl}, need to complete {_needCompleteRoomsForNextLvl - _completedRooms} rooms for the next upgrade.");
+                Console.WriteLine($"Your level upgraded, now your level is {++Lvl}, you need to complete {_needCompleteRoomsForNextLvl - _completedRooms} rooms for the next upgrade.");
 
                 base.StartHealth++;
                 base.Health = base.StartHealth;

@@ -74,7 +74,7 @@ namespace MiniGame
         {
             Console.WriteLine($"You found a {difficulty} opponent");
 
-            int Health = random.Next(85, 111); 
+            int Health = random.Next(85, 106); 
             int Damage = random.Next(7, 13);
             int Armor = random.Next(0, 4);
 
@@ -98,13 +98,52 @@ namespace MiniGame
             NewEnemy.ShowStatistic();
 
             FightingWhitEnemy(NewEnemy);
+
+            if(random.Next(1, 6) == 1)
+            {
+                Console.WriteLine("You found a chest, do you want to open it?");
+
+                if (_askQuestion.AskQuestionMain($"Y/N", "Y", "N") == "N")
+                    return;
+
+                GetRandomClothes();
+            }
+        }
+
+        public void GetRandomClothes(int booster = 0) 
+        {
+            BodyPart RandomBodyPart = (BodyPart)random.Next(0, 5);
+            int Units = random.Next(1, 4) + booster;
+            string Name = RandomBodyPart.ToString();
+            string Type = RandomBodyPart != BodyPart.Weapon ? "armor" : "damage";
+
+            Console.WriteLine($"You found {Name} has {Units} {Type} for {RandomBodyPart}");
+            
+            string Res = _askQuestion.AskQuestionMain("What do you want to do with the item?\nEquip the item: P;\nDon't take the item: D;\nPut the item in inventory: I;", "P", "D", "I");
+
+            switch(Res)
+            {
+                case "D":
+                    return;
+                case "I":
+                    _inventory.AddNewItem(Name, Type, Units, RandomBodyPart);
+                    Console.WriteLine("Item added to inventory");
+                    break;
+                case "P":
+                    _inventory.AddNewItem(Name, Type, Units, RandomBodyPart);
+
+                    var arr = RandomBodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.WeaponInventory;
+
+                    _inventory.EquipNewItem(arr.ElementAt(arr.Count - 1), arr.Count - 1);
+                    break;
+            }
         }
 
         public void FightingWhitEnemy(Enemy enemy)
         {
             Console.WriteLine($"What will you do? \n");
 
-            string Res = _askQuestion.AskQuestionMain($"Look your statistic: S;\nLook inventory: I;\nLook opponent's static: O;\nAttack him: A", "S", "I", "O", "A");
+            string Res = _askQuestion.AskQuestionMain("Look your statistic: S;\nLook inventory: I;\nLook opponent's static: O;\nAttack him: A", "S", "I", "O", "A");
 
             switch (Res)
             {
