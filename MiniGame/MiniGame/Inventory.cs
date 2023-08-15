@@ -16,6 +16,7 @@ namespace MiniGame
 
         public List<Dictionary<string, string>> Armor { get; private set; } = new List<Dictionary<string, string>>();
         public List<Dictionary<string, string>> WeaponInventory { get; private set; } = new List<Dictionary<string, string>>();
+        public List<Dictionary<string, string>> Other { get; private set; } = new List<Dictionary<string, string>>();
         public Dictionary<BodyPart, Dictionary<string, string>> Equipped { get; private set; } = new Dictionary<BodyPart, Dictionary<string, string>>()
         {
             {BodyPart.Helmet, new Dictionary<string, string> { {"name", "null" }, { "units", "null" }, { "type", "armor" } } },
@@ -31,8 +32,12 @@ namespace MiniGame
 
             AddNewItem("Metallic panties", "armor", 1, BodyPart.Legs);
             AddNewItem("Toothpick", "damage", 1, BodyPart.Weapon);
-            EquipNewItem(Armor[0], 0);
-            EquipNewItem(WeaponInventory[0], 0);
+            EquipClothest(Armor[0], 0);
+            EquipClothest(WeaponInventory[0], 0);
+
+            AddNewItem("Small heal", "heal", 20);
+            AddNewItem("Big heal", "heal", 100);
+            AddNewItem("Medium heal", "heal", 50);
         }
 
         public void AddNewItem(string name, string type, int units, BodyPart bodyPart)
@@ -50,12 +55,20 @@ namespace MiniGame
             }
         }
 
+        public void AddNewItem(string name, string type, int units)
+        {
+            var newItem = new Dictionary<string, string>() { { "name", name }, { "units", units.ToString() }, { "type", type } };
+
+            Other.Add(newItem);
+        }
+
         public void ShowInventory()
         {
             Console.WriteLine($"\nYour Inventory:");
             ShowEquippedItems();
             ShowOneCategory(Armor, "armor", 'A');
             ShowOneCategory(WeaponInventory, "damage", 'W');
+            ShowOneCategory(Other, "other", 'O');
 
             ChooseItem();
         }
@@ -79,7 +92,7 @@ namespace MiniGame
 
         private void ShowOneCategory(List<Dictionary<string, string>> category, string name, char symbol)
         {
-            Console.WriteLine($"  {name} items:");
+            Console.WriteLine($"  {char.ToUpper(name[0]) + name.Substring(1)} items:");
 
             if (category.Count == 0)
             {
@@ -91,10 +104,15 @@ namespace MiniGame
             {
                 string Name = category[i]["name"];
                 string Units = category[i]["units"];
-                string BodyPart = category[i]["bodyPart"];
 
-                Console.Write($"    {symbol}{i + 1}: {Name} have {name} {Units} for {BodyPart}; \n");
+                if(name == "damage" || name == "armor")
+                {
+                    string BodyPart = category[i]["bodyPart"];
 
+                    Console.WriteLine($"    {symbol}{i + 1}: {Name} have {name} {Units} for {BodyPart};");
+                }
+                else
+                    Console.WriteLine($"    {symbol}{i + 1}: {Name} have {category[i]["type"]} {Units};");
             }
         }
         
@@ -105,6 +123,7 @@ namespace MiniGame
             AddToArrIndexes('A', Armor.Count, ref Indexes);
             AddToArrIndexes('W', WeaponInventory.Count, ref Indexes);
             AddToArrIndexes('E', Equipped.Count, ref Indexes);
+            AddToArrIndexes('O', Other.Count, ref Indexes);
 
             Indexes.Add("E");
 
@@ -126,9 +145,11 @@ namespace MiniGame
                 case 'W':
                     ChooseActianForClothes(CurrentIndex, WeaponInventory);
                     break;
-                default:
-                    Console.WriteLine("Default");
+                case 'O':
+                    ChooseActianForClothes(CurrentIndex, Other, isClothes: false);
                     break;
+                default:
+                    throw new ArgumentException($"Unknown index: {Res[0]}");
             }
         }
 
@@ -178,18 +199,21 @@ namespace MiniGame
             }
         }
 
-        private void ChooseActianForClothes(int index, List<Dictionary<string, string>> arr)
+        private void ChooseActianForClothes(int index, List<Dictionary<string, string>> arr, bool isClothes = true)
         {
             Dictionary<string, string> item = arr[index];
 
             Console.WriteLine($"You selected: {item["name"]}, {item["type"]}: {item["units"]}");
 
-            string ResSecond = _askQuestion.AskQuestionMain($"What do you want to do whith this item \nEquip the item: P; \nThrow away the item: T;\nBack to all items: B;\nExit: E", "P", "T", "B", "E");
+            string ResSecond = _askQuestion.AskQuestionMain($"What do you want to do with this item?\n{(isClothes ? "Equip" : "Use")} the item: P;\nThrow away the item: T;\nBack to all items: B;\nExit: E", "P", "T", "B", "E");
 
             switch (ResSecond)
             {
                 case "P":
-                    EquipNewItem(item, index);
+                    if (isClothes)
+                        EquipClothest(item, index);
+                    else
+                        UseItem(item);
                     break;
                 case "T":
                     RemoveIndex(item["type"], index);
@@ -202,7 +226,16 @@ namespace MiniGame
             ShowInventory();
         }
 
-        public void EquipNewItem(Dictionary<string, string> item, int index)
+        public void UseItem(Dictionary<string, string> item)
+        {
+            if (item["type"] == "heal")
+            {
+                _player.HealHealth(int.Parse(item["units"]));
+                Other.Remove(item);
+            }
+        }
+
+        public void EquipClothest(Dictionary<string, string> item, int index)
         {
             BodyPart CurrentBodyPart = FindCategoryByString(item["bodyPart"]);
 
@@ -216,7 +249,7 @@ namespace MiniGame
 
                 var equippedItem = Equipped[CurrentBodyPart];
 
-                AddNewItem(equippedItem["name"], equippedItem["type"], int.Parse(equippedItem["units"]), FindCategoryByString(item["bodyPart"]));
+                AddNewItem(equippedItem["name"], equippedItem["type"], int.Parse(equippedItem["units"]), CurrentBodyPart);
                 FindWhatNeedsModification(equippedItem["type"], -int.Parse(equippedItem["units"]));
             }
 
@@ -242,7 +275,7 @@ namespace MiniGame
                     WeaponInventory.RemoveAt(index);
                     break;
                 default:
-                    throw new ArgumentException($"Failed modification. Unknown category: {type}");
+                    throw new ArgumentException($"Failed remove. Unknown category: {type}");
             }
         }
 

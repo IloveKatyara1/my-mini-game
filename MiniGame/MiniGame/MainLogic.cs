@@ -5,6 +5,8 @@ namespace MiniGame
 {
     internal class MainLogic
     {
+        private readonly NamesItem _namesItem = new();
+
         private readonly AskQuestion _askQuestion = new();
         private readonly Player _player = new();
         private readonly Inventory _inventory;
@@ -99,42 +101,94 @@ namespace MiniGame
 
             FightingWhitEnemy(NewEnemy);
 
-            if(random.Next(1, 6) == 1)
+            if(random.Next(1, 9) == 1)
             {
                 Console.WriteLine("You found a chest, do you want to open it?");
 
                 if (_askQuestion.AskQuestionMain($"Y/N", "Y", "N") == "N")
                     return;
 
-                GetRandomClothes();
+                int Units;
+
+                int RandomNumberForUnits = random.Next(0, 9);
+
+                if (RandomNumberForUnits <= 5)
+                    Units = 1;
+                else if (RandomNumberForUnits <= 7)
+                    Units = 2;
+                else
+                    Units = 3;
+
+                BodyPart RandomBodyPart = (BodyPart)random.Next(0, 5);
+                string Name = _namesItem.GetName(RandomBodyPart.ToString(), Units - 1);
+                string Type = RandomBodyPart != BodyPart.Weapon ? "armor" : "damage";
+
+                ChooseActionForFoundItem(Name, Type, Units, RandomBodyPart);
+
+                if (random.Next(1, 6) == 1)
+                {
+                    int NameIndex;
+
+                    RandomNumberForUnits = random.Next(0, 9);
+
+                    if (RandomNumberForUnits <= 5)
+                    {
+                        Units = 20;
+                        NameIndex = 0;
+                    }
+                    else if (RandomNumberForUnits <= 7)
+                    {
+                        Units = 50;
+                        NameIndex = 1;
+                    }
+                    else
+                    {
+                        Units = 100;
+                        NameIndex = 2;
+                    }
+
+                    Name = _namesItem.GetName("Heal", NameIndex);
+                    Type = "heal";
+
+                    ChooseActionForFoundItem(Name, Type, Units, null);
+                }
             }
         }
 
-        public void GetRandomClothes(int booster = 0) 
+        public void ChooseActionForFoundItem(string name, string type, int units, BodyPart? bodyPart)
         {
-            BodyPart RandomBodyPart = (BodyPart)random.Next(0, 5);
-            int Units = random.Next(1, 4) + booster;
-            string Name = RandomBodyPart.ToString();
-            string Type = RandomBodyPart != BodyPart.Weapon ? "armor" : "damage";
+            Console.WriteLine($"You found {name} has {units} {type}{(bodyPart.HasValue ? $" for {bodyPart}" : "")}");
 
-            Console.WriteLine($"You found {Name} has {Units} {Type} for {RandomBodyPart}");
-            
-            string Res = _askQuestion.AskQuestionMain("What do you want to do with the item?\nEquip the item: P;\nDon't take the item: D;\nPut the item in inventory: I;", "P", "D", "I");
+            string Res = _askQuestion.AskQuestionMain($"What do you want to do with the item?\n{(bodyPart.HasValue ? "Equip" : "Use")} the item: P;\nDon't take the item: D;\nPut the item in inventory: I;", "P", "D", "I");
 
-            switch(Res)
+            switch (Res)
             {
                 case "D":
                     return;
                 case "I":
-                    _inventory.AddNewItem(Name, Type, Units, RandomBodyPart);
+                    if (bodyPart.HasValue)
+                        _inventory.AddNewItem(name, type, units, (BodyPart)bodyPart);
+                    else
+                        _inventory.AddNewItem(name, type, units);
+
                     Console.WriteLine("Item added to inventory");
                     break;
                 case "P":
-                    _inventory.AddNewItem(Name, Type, Units, RandomBodyPart);
+                    if (bodyPart.HasValue)
+                    {
+                        _inventory.AddNewItem(name, type, units, (BodyPart)bodyPart);
 
-                    var arr = RandomBodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.WeaponInventory;
+                        List<Dictionary<string, string>> arr;
 
-                    _inventory.EquipNewItem(arr.ElementAt(arr.Count - 1), arr.Count - 1);
+                        arr = bodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.WeaponInventory;
+
+                        _inventory.EquipClothest(arr.ElementAt(arr.Count - 1), arr.Count - 1);
+                    }
+                    else
+                    {
+                        _inventory.AddNewItem(name, type, units);
+                        _inventory.UseItem(_inventory.Other[_inventory.Other.Count - 1]);
+                    }
                     break;
             }
         }
