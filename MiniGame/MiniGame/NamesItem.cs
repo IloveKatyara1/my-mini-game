@@ -24,7 +24,7 @@ namespace MiniGame
             int CorrectIndex = index;
 
             if (index > 4)
-                CorrectIndex = 4;
+                CorrectIndex = 3;
 
             return _names[CorrectName][CorrectIndex];
         }

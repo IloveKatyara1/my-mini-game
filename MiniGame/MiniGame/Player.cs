@@ -11,8 +11,19 @@ namespace MiniGame
         private int _completedRooms = 0;
         private int _needCompleteRoomsForNextLvl = 1;
         public int Lvl { get; private set; } = 1;
+        public int Money { get; private set; } = 10000;
+
+
         public Player() : base (100,0, 10)
         {
+        }
+
+        public void ModifyMoney(int units)
+        {
+            if (units * -1 > Money)
+                throw new ArgumentException("the minus bigger then palyer money");
+
+            Money += units;
         }
 
         public void ModifyArmor(int armor)
@@ -27,7 +38,7 @@ namespace MiniGame
 
         public override void ShowStatistic()
         {
-            Console.WriteLine($"Your statistics:\nHealth: {base.GetHealth()}\nArmor: {Armor}\nDamage: {Damage}\nCompleted rooms: {_completedRooms}\nYour level: {Lvl}\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - _completedRooms}"
+            Console.WriteLine($"Your statistics:\nHealth: {base.GetHealth()}\nArmor: {Armor}\nDamage: {Damage}\nCompleted rooms: {_completedRooms}\nYour level: {Lvl}\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - _completedRooms};\nYou have {Money} money"
 );
         }
 

@@ -12,7 +12,10 @@ namespace MiniGame
     internal class Inventory
     {
         private readonly AskQuestion _askQuestion = new();
+        private readonly FindBodyPartByStr _findBodyPartByStr = new();
         private readonly Player _player;
+
+        bool IsSeller = false;
 
         public List<Dictionary<string, string>> Armor { get; private set; } = new List<Dictionary<string, string>>();
         public List<Dictionary<string, string>> WeaponInventory { get; private set; } = new List<Dictionary<string, string>>();
@@ -35,14 +38,21 @@ namespace MiniGame
             EquipClothest(Armor[0], 0);
             EquipClothest(WeaponInventory[0], 0);
 
-            AddNewItem("Small heal", "heal", 20);
-            AddNewItem("Big heal", "heal", 100);
-            AddNewItem("Medium heal", "heal", 50);
+            AddNewItem("Small heal", "heal", 20, 1);
+            AddNewItem("Big heal", "heal", 100, 3);
+            AddNewItem("Medium heal", "heal", 50, 2);
         }
 
         public void AddNewItem(string name, string type, int units, BodyPart bodyPart)
         {
-            var newItem = new Dictionary<string, string>() { { "name", name }, { "units", units.ToString() }, { "bodyPart", bodyPart.ToString() }, { "type", type } };
+            var newItem = new Dictionary<string, string>() 
+            { 
+                { "name", name }, 
+                { "units", units.ToString() }, 
+                { "bodyPart", bodyPart.ToString() }, 
+                { "type", type }, 
+                { "unitsForSale", units.ToString() } 
+            };
 
             switch (type)
             {
@@ -55,17 +65,19 @@ namespace MiniGame
             }
         }
 
-        public void AddNewItem(string name, string type, int units)
+        public void AddNewItem(string name, string type, int units, int unitsForSale)
         {
-            var newItem = new Dictionary<string, string>() { { "name", name }, { "units", units.ToString() }, { "type", type } };
+            var newItem = new Dictionary<string, string>() { { "name", name }, { "units", units.ToString() }, { "type", type }, { "unitsForSale", unitsForSale.ToString() } };
 
             Other.Add(newItem);
         }
 
-        public void ShowInventory()
+        public void ShowInventory(bool isSeller = false)
         {
+            IsSeller = isSeller;
+
             Console.WriteLine($"\nYour Inventory:");
-            ShowEquippedItems();
+            ShowEquippedItems(Equipped);
             ShowOneCategory(Armor, "armor", 'A');
             ShowOneCategory(WeaponInventory, "damage", 'W');
             ShowOneCategory(Other, "other", 'O');
@@ -73,18 +85,25 @@ namespace MiniGame
             ChooseItem();
         }
 
-        private void ShowEquippedItems()
+        private void ShowEquippedItems(Dictionary<BodyPart, Dictionary<string, string>>  arr)
         {
             int i = 1;
 
-            Console.WriteLine($"  equipped items:");
+            Console.WriteLine($"  Equipped items:");
 
-            foreach (var category in Equipped)
+            foreach (var category in arr)
             {
                 BodyPart categoryName = category.Key;
                 Dictionary<string, string> itemInfo = category.Value;
 
-                Console.WriteLine($"    E{i}: {categoryName} equipped {itemInfo["name"]} have {itemInfo["type"]} {itemInfo["units"]}");
+                string PriceItem = "";
+
+                if (itemInfo["units"] != "null" && IsSeller)
+                    PriceItem = $", price: {GetPriceItem(int.Parse(itemInfo["unitsForSale"]))}";
+
+                string ShowStr = $"    E{i}: {categoryName} equipped {itemInfo["name"]} have {itemInfo["type"]} {itemInfo["units"]}{PriceItem};";
+
+                Console.WriteLine(ShowStr);
 
                 i++;
             }
@@ -109,23 +128,23 @@ namespace MiniGame
                 {
                     string BodyPart = category[i]["bodyPart"];
 
-                    Console.WriteLine($"    {symbol}{i + 1}: {Name} have {name} {Units} for {BodyPart};");
+                    Console.WriteLine($"    {symbol}{i + 1}: {Name} have {name} {Units} for {BodyPart}" +
+                        $"{(IsSeller ? $", price: {GetPriceItem(int.Parse(category[i]["unitsForSale"]))}" : "")};");
                 }
                 else
-                    Console.WriteLine($"    {symbol}{i + 1}: {Name} have {category[i]["type"]} {Units};");
+                    Console.WriteLine($"    {symbol}{i + 1}: {Name} have {category[i]["type"]} {Units}" +
+                        $"{(IsSeller ? $", price: {GetPriceItem(int.Parse(category[i]["unitsForSale"]))}" : "")};");
             }
         }
         
         public void ChooseItem()
         {
-            List<string> Indexes = new List<string>();
+            List<string> Indexes = new List<string>() { "E" };
 
             AddToArrIndexes('A', Armor.Count, ref Indexes);
             AddToArrIndexes('W', WeaponInventory.Count, ref Indexes);
             AddToArrIndexes('E', Equipped.Count, ref Indexes);
             AddToArrIndexes('O', Other.Count, ref Indexes);
-
-            Indexes.Add("E");
 
             string Res = _askQuestion.AskQuestionMain($"Select item by type number, or exit: E", Indexes.ToArray());
 
@@ -140,13 +159,13 @@ namespace MiniGame
                     ChooseActianForEquipped(CurrentIndex);
                     break;
                 case 'A':
-                    ChooseActianForClothes(CurrentIndex, Armor);
+                    ChooseActianForItem(CurrentIndex, Armor);
                     break;
                 case 'W':
-                    ChooseActianForClothes(CurrentIndex, WeaponInventory);
+                    ChooseActianForItem(CurrentIndex, WeaponInventory);
                     break;
                 case 'O':
-                    ChooseActianForClothes(CurrentIndex, Other, isClothes: false);
+                    ChooseActianForItem(CurrentIndex, Other, isClothes: false);
                     break;
                 default:
                     throw new ArgumentException($"Unknown index: {Res[0]}");
@@ -158,9 +177,27 @@ namespace MiniGame
             var itemKey = Equipped.ElementAt(index).Key;
             var item = Equipped[itemKey];
 
+            if (item["name"] == "null")
+            {
+                Console.WriteLine("First you need to equip something");
+                ShowInventory(IsSeller);
+                return;
+            }
+
             Console.WriteLine($"You selected: {item["name"]}, {item["type"]}: {item["units"]}");
 
-            string Res = _askQuestion.AskQuestionMain($"What do you want to do whith this item \nUnequip the item : P; \nThrow away the item: T;\nBack to all items: B;\nExit: E", "P", "T", "B", "E");
+            string[] CharsForQuestion = new string[]{ "P", "T", "B", "E" };
+
+            if (IsSeller)
+                CharsForQuestion = new string[] { "P", "T", "B", "E", "S" };
+
+            string Res = _askQuestion.AskQuestionMain($"What do you want to do whith this item " +
+                $"\nUnequip the item : P;" +
+                $"\nThrow away the item: T;" +
+                $"\nBack to all items: B;" +
+                $"{(IsSeller ? $"\nSell the item: S; (price of the item:{GetPriceItem(int.Parse(item["unitsForSale"]))})" : "")}" +
+                $"\nExit: E", 
+                CharsForQuestion);
 
             if (Res == "E") return;
 
@@ -176,9 +213,13 @@ namespace MiniGame
                 case "T":
                     MakeDefaultEquipped(itemKey, item);
                     break;
+                case "S":
+                    SellItem(item, itemKey.ToString());
+                    MakeDefaultEquipped(itemKey, item);
+                    break;
             }
 
-            ShowInventory();
+            ShowInventory(IsSeller);
         }
 
         private void MakeDefaultEquipped(BodyPart itemKey, Dictionary<string, string> item)
@@ -191,7 +232,7 @@ namespace MiniGame
                 Equipped[BodyPart.Weapon] = new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } };
         }
 
-        private void AddToArrIndexes(char symbol, int arrCount, ref List<string> arrIndexes)
+        public void AddToArrIndexes(char symbol, int arrCount, ref List<string> arrIndexes)
         {
             for (int i = 1; i <= arrCount; i++)
             {
@@ -199,13 +240,24 @@ namespace MiniGame
             }
         }
 
-        private void ChooseActianForClothes(int index, List<Dictionary<string, string>> arr, bool isClothes = true)
+        private void ChooseActianForItem(int index, List<Dictionary<string, string>> arr, bool isClothes = true)
         {
             Dictionary<string, string> item = arr[index];
 
+            string[] CharsForQuestion = new string[] { "P", "T", "B", "E" };
+
+            if (IsSeller)
+                CharsForQuestion = new string[] { "P", "T", "B", "E", "S" };
+
             Console.WriteLine($"You selected: {item["name"]}, {item["type"]}: {item["units"]}");
 
-            string ResSecond = _askQuestion.AskQuestionMain($"What do you want to do with this item?\n{(isClothes ? "Equip" : "Use")} the item: P;\nThrow away the item: T;\nBack to all items: B;\nExit: E", "P", "T", "B", "E");
+            string ResSecond = _askQuestion.AskQuestionMain($"What do you want to do with this item?" +
+                $"\n{(isClothes ? "Equip" : "Use")} the item: P;" +
+                $"\nThrow away the item: T;" +
+                $"\nBack to all items: B;" +
+                $"{(IsSeller ? $"\nSell the item: S; (price of the item: {GetPriceItem(int.Parse(item["unitsForSale"]))})" : "")}" +
+                $"\nExit: E",
+                CharsForQuestion);
 
             switch (ResSecond)
             {
@@ -219,11 +271,34 @@ namespace MiniGame
                     RemoveIndex(item["type"], index);
                     Console.WriteLine("The item was removed");
                     break;
+                case "S":
+                    if (isClothes)
+                        SellItem(item, item["bodyPart"]);
+                    else
+                        SellItem(item, null);
+                    RemoveIndex(item["type"], index);
+                    break;
                 case "E":
                     return;
             }
 
-            ShowInventory();
+            ShowInventory(IsSeller);
+        }
+
+        private void SellItem(Dictionary<string, string> item, string? bodyPart)
+        {
+            int PriceItem = GetPriceItem(int.Parse(item["unitsForSale"]));
+
+            string Res = _askQuestion.AskQuestionMain(
+            $"Are you sure want to sell the {item["name"]}, {item["type"]}: {item["units"]}{(bodyPart != null ? $" for {bodyPart}" : "")}. You will receive {PriceItem} money. Y/N",
+            "Y", "N");
+
+            if (Res == "N")
+                return;
+
+            _player.ModifyMoney(PriceItem);
+
+            Console.WriteLine($"You sold the item, and received {PriceItem} money");
         }
 
         public void UseItem(Dictionary<string, string> item)
@@ -237,7 +312,7 @@ namespace MiniGame
 
         public void EquipClothest(Dictionary<string, string> item, int index)
         {
-            BodyPart CurrentBodyPart = FindCategoryByString(item["bodyPart"]);
+            BodyPart CurrentBodyPart = _findBodyPartByStr.Main(item["bodyPart"]);
 
             if (Equipped[CurrentBodyPart]["name"] != "null")
             {
@@ -257,7 +332,8 @@ namespace MiniGame
             {
                 { "name", item["name"] },
                 { "units", item["units"] },
-                { "type", item["type"] }
+                { "type", item["type"] },
+                { "unitsForSale", item["unitsForSale"] }
             };
 
             RemoveIndex(item["type"], index);
@@ -275,21 +351,9 @@ namespace MiniGame
                     WeaponInventory.RemoveAt(index);
                     break;
                 default:
-                    throw new ArgumentException($"Failed remove. Unknown category: {type}");
+                    Other.RemoveAt(index);
+                    break;
             }
-        }
-
-        private BodyPart FindCategoryByString(string bodyPart)
-        {
-            return bodyPart switch
-            {
-                "Helmet" => BodyPart.Helmet,
-                "Body" => BodyPart.Body,
-                "Legs" => BodyPart.Legs,
-                "Weapon" => BodyPart.Weapon,
-                "Shield" => BodyPart.Shield,
-                _ => throw new ArgumentException("Invalid body part string"),
-            };
         }
 
         private void FindWhatNeedsModification(string type, int units)
@@ -306,5 +370,7 @@ namespace MiniGame
                     throw new ArgumentException($"Failed modification. Unknown category: {type}");
             }
         }
+
+        private int GetPriceItem(int units) => units * 100 / 4;
     }
 }

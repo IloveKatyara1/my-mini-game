@@ -30,22 +30,26 @@ namespace MiniGame
             int EmptyRoom = 8;
             int Something = 5;
 
-            if (randomNumber <= SimpleOpponent || randomNumber <= SimpleOpponent + DifficultOpponent && _player.Lvl < 4)
-            {
-                CreateNewEnemy("simple");
-            }
-            else if (randomNumber <= SimpleOpponent + DifficultOpponent)
-            {
-                CreateNewEnemy("difficult");
-            }
-            else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom)
-            {
-                Console.WriteLine("You found an empty room");
-            }
-            else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom + Something)
-            {
-                Console.WriteLine("You found something");
-            }
+            //if (randomNumber <= SimpleOpponent || randomNumber <= SimpleOpponent + DifficultOpponent && _player.Lvl < 4)
+            //{
+            //    CreateNewEnemy("simple");
+            //}
+            //else if (randomNumber <= SimpleOpponent + DifficultOpponent)
+            //{
+            //    CreateNewEnemy("difficult");
+            //}
+            //else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom)
+            //{
+            //    Console.WriteLine("You found an empty room");
+            //}
+            //else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom + Something)
+            //{
+            //    Console.WriteLine("You found something");
+            //}
+
+            Seller seller = new(_player, _inventory);
+
+            seller.Start();
 
             _player.AddNewCompletedRoom();
         }
@@ -79,12 +83,14 @@ namespace MiniGame
             int Health = random.Next(85, 106); 
             int Damage = random.Next(7, 13);
             int Armor = random.Next(0, 4);
+            int EnemyMoneyDropped = random.Next(1, 20);
 
             if (difficulty == "difficult")
             {
                 Health += 5;
                 Damage += 2;
                 Armor += 2;
+                EnemyMoneyDropped += 10;
             }
 
             if(_player.Lvl >= 5)
@@ -94,6 +100,7 @@ namespace MiniGame
                 Health += PlusNum;
                 Damage += PlusNum;
                 Armor += PlusNum;
+                EnemyMoneyDropped += PlusNum;
             }
 
             Enemy NewEnemy = new(difficulty, Health, Damage, Armor);
@@ -101,7 +108,10 @@ namespace MiniGame
 
             FightingWhitEnemy(NewEnemy);
 
-            if(random.Next(1, 9) == 1)
+            Console.WriteLine($"After killed enemy, he droped {EnemyMoneyDropped} money");
+            _player.ModifyMoney(EnemyMoneyDropped);
+
+            if (random.Next(1, 9) == 1)
             {
                 Console.WriteLine("You found a chest, do you want to open it?");
 
@@ -123,7 +133,20 @@ namespace MiniGame
                 string Name = _namesItem.GetName(RandomBodyPart.ToString(), Units - 1);
                 string Type = RandomBodyPart != BodyPart.Weapon ? "armor" : "damage";
 
-                ChooseActionForFoundItem(Name, Type, Units, RandomBodyPart);
+                ChooseActionForFoundItem(Name, Type, Units, RandomBodyPart, null);
+
+                if (random.Next(1, 5) == 1)
+                {
+                    if (RandomNumberForUnits <= 5)
+                        EnemyMoneyDropped = 10;
+                    else if (RandomNumberForUnits <= 7)
+                        EnemyMoneyDropped = 20;
+                    else
+                        EnemyMoneyDropped = 30;
+
+                    Console.WriteLine($"You found {EnemyMoneyDropped} money");
+                }
+
 
                 if (random.Next(1, 6) == 1)
                 {
@@ -150,12 +173,12 @@ namespace MiniGame
                     Name = _namesItem.GetName("Heal", NameIndex);
                     Type = "heal";
 
-                    ChooseActionForFoundItem(Name, Type, Units, null);
+                    ChooseActionForFoundItem(Name, Type, Units, null, NameIndex + 1);
                 }
             }
         }
 
-        public void ChooseActionForFoundItem(string name, string type, int units, BodyPart? bodyPart)
+        public void ChooseActionForFoundItem(string name, string type, int units, BodyPart? bodyPart, int? unitsForSale)
         {
             Console.WriteLine($"You found {name} has {units} {type}{(bodyPart.HasValue ? $" for {bodyPart}" : "")}");
 
@@ -168,8 +191,10 @@ namespace MiniGame
                 case "I":
                     if (bodyPart.HasValue)
                         _inventory.AddNewItem(name, type, units, (BodyPart)bodyPart);
+                    else if (unitsForSale.HasValue)
+                        _inventory.AddNewItem(name, type, units, (int)unitsForSale);
                     else
-                        _inventory.AddNewItem(name, type, units);
+                        throw new ArgumentException("didn't have argument bodyPart or unitsForSale");
 
                     Console.WriteLine("Item added to inventory");
                     break;
@@ -184,11 +209,13 @@ namespace MiniGame
 
                         _inventory.EquipClothest(arr.ElementAt(arr.Count - 1), arr.Count - 1);
                     }
-                    else
+                    else if (unitsForSale.HasValue)
                     {
-                        _inventory.AddNewItem(name, type, units);
+                        _inventory.AddNewItem(name, type, units, (int)unitsForSale);
                         _inventory.UseItem(_inventory.Other[_inventory.Other.Count - 1]);
                     }
+                    else
+                        throw new ArgumentException("didn't have argument bodyPart or unitsForSale");
                     break;
             }
         }
