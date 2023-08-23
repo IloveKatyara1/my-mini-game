@@ -8,10 +8,10 @@ namespace MiniGame
 {
     internal class  Player : Entity
     {
-        private int _completedRooms = 0;
+        public int CompletedRooms { get; private set; } = 0;
         private int _needCompleteRoomsForNextLvl = 1;
         public int Lvl { get; private set; } = 1;
-        public int Money { get; private set; } = 10000;
+        public int Money { get; private set; } = 0;
 
 
         public Player() : base (100,0, 10)
@@ -38,19 +38,19 @@ namespace MiniGame
 
         public override void ShowStatistic()
         {
-            Console.WriteLine($"Your statistics:\nHealth: {base.GetHealth()}\nArmor: {Armor}\nDamage: {Damage}\nCompleted rooms: {_completedRooms}\nYour level: {Lvl}\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - _completedRooms};\nYou have {Money} money"
+            Console.WriteLine($"Your statistics:\nHealth: {base.GetHealth()}\nArmor: {Armor}\nDamage: {Damage}\nCompleted rooms: {CompletedRooms}\nYour level: {Lvl}\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - CompletedRooms};\nYou have {Money} money"
 );
         }
 
         public void AddNewCompletedRoom()
         {
-            _completedRooms++;
+            CompletedRooms++;
 
-            if(_needCompleteRoomsForNextLvl == _completedRooms)
+            if(_needCompleteRoomsForNextLvl == CompletedRooms)
             {
                 _needCompleteRoomsForNextLvl *= 3;
 
-                Console.WriteLine($"Your level upgraded, now your level is {++Lvl}, you need to complete {_needCompleteRoomsForNextLvl - _completedRooms} rooms for the next upgrade.");
+                Console.WriteLine($"Your level upgraded, now your level is {++Lvl}, you need to complete {_needCompleteRoomsForNextLvl - CompletedRooms} rooms for the next upgrade.");
 
                 base.StartHealth++;
                 base.Health = base.StartHealth;

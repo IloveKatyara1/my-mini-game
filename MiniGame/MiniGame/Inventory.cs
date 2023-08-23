@@ -1,4 +1,5 @@
-﻿using MiniGame.Untils;
+﻿using MiniGame.Enums;
+using MiniGame.Untils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,9 +39,9 @@ namespace MiniGame
             EquipClothest(Armor[0], 0);
             EquipClothest(WeaponInventory[0], 0);
 
-            AddNewItem("Small heal", "heal", 20, 1);
-            AddNewItem("Big heal", "heal", 100, 3);
-            AddNewItem("Medium heal", "heal", 50, 2);
+            AddNewItem("Small healing flask", "heal", 20, 1);
+            AddNewItem("Big healing flask", "heal", 100, 3);
+            AddNewItem("Medium healing flask", "heal", 50, 2);
         }
 
         public void AddNewItem(string name, string type, int units, BodyPart bodyPart)

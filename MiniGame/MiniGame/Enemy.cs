@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MiniGame.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,9 +9,9 @@ namespace MiniGame
 {
     internal class Enemy : Entity
     {
-        private string _difficulty;
+        private DiffucultEnemyes _difficulty;
 
-        public Enemy(string difficulty, int health, int damage, int armor) : base(health, armor, damage)
+        public Enemy(DiffucultEnemyes difficulty, int health, int damage, int armor) : base(health, armor, damage)
         {
             _difficulty = difficulty;
         }

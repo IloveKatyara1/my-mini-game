@@ -1,4 +1,5 @@
-﻿using MiniGame.Untils;
+﻿using MiniGame.Enums;
+using MiniGame.Untils;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -244,7 +245,7 @@ namespace MiniGame
             else
                 Units = 4;
 
-            Units += _player.Lvl >= 8 ? _player.Lvl - 8 : 0;
+            Units += _player.Lvl >= 5 ? _player.Lvl - 5 : 0;
 
             int Price = GetPrice(Units);
 
