@@ -38,8 +38,14 @@ namespace MiniGame
 
         public override void ShowStatistic()
         {
-            Console.WriteLine($"Your statistics:\nHealth: {base.GetHealth()}\nArmor: {Armor}\nDamage: {Damage}\nCompleted rooms: {CompletedRooms}\nYour level: {Lvl}\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - CompletedRooms};\nYou have {Money} money"
-);
+            Console.WriteLine($"Your statistics:" +
+                $"\nHealth: {base.GetHealth()}" +
+                $"\nArmor: {Armor}" +
+                $"\nDamage: {Damage}" +
+                $"\nCompleted rooms: {CompletedRooms}" +
+                $"\nYour level: {Lvl}" +
+                $"\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - CompletedRooms};" +
+                $"\nYou have {Money} money");
         }
 
         public void AddNewCompletedRoom()

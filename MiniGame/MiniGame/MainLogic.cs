@@ -6,9 +6,6 @@ namespace MiniGame
 {
     internal class MainLogic
     {
-        private readonly NamesItem _namesItem = new();
-
-        private readonly AskQuestion _askQuestion = new();
         private readonly Player _player = new();
         private readonly Inventory _inventory;
         Random random = new Random();
@@ -22,7 +19,7 @@ namespace MiniGame
         {
             Console.WriteLine($"\nWhere would you like to go?");
 
-            string Res = _askQuestion.AskQuestionMain("L/M/R", "L", "M", "R");
+            string Res = AskQuestion.Main("L/M/R", "L", "M", "R");
 
             int randomNumber = random.Next(1, 101);
 
@@ -69,7 +66,7 @@ namespace MiniGame
         {
             Console.WriteLine($"\nPlease, choose the action");
 
-            string Res = _askQuestion.AskQuestionMain($"Look statistic: S;\nLook inventory: I;\nContinue your way: W;", "S", "I", "W");
+            string Res = AskQuestion.Main($"Look statistic: S;\nLook _inventory: I;\nContinue your way: W;", "S", "I", "W");
 
             switch (Res)
             {
@@ -80,7 +77,7 @@ namespace MiniGame
                     _player.ShowStatistic();
                     break;
                 case "I":
-                    _inventory.ShowInventory();
+                    _inventory.Show_inventory();
                     break;
             }
 
@@ -134,8 +131,8 @@ namespace MiniGame
                 FoundChest(maxRandomForHeal: 2, maxRanbomForMoney: 2, fromBoss: true);
                 FoundChest(maxRandomForHeal: 2, maxRanbomForMoney: 2, fromBoss: true);
 
-                Seller seller = new(_player, _inventory);
-                seller.Start();
+                Seller Seller = new(_player, _inventory);
+                Seller.Start();
             }
             else if (random.Next(1, 9) == 1)
             {
@@ -147,7 +144,7 @@ namespace MiniGame
         {
             Console.WriteLine("You found a chest, do you want to open it?");
 
-            if (_askQuestion.AskQuestionMain($"Y/N", "Y", "N") == "N")
+            if (AskQuestion.Main($"Y/N", "Y", "N") == "N")
                 return;
 
             int Units;
@@ -174,7 +171,7 @@ namespace MiniGame
             }
 
             BodyPart RandomBodyPart = (BodyPart)random.Next(0, 5);
-            string Name = _namesItem.GetName(RandomBodyPart.ToString(), Units - 1);
+            string Name = NamesItem.GetName(RandomBodyPart.ToString(), Units - 1);
             string Type = RandomBodyPart != BodyPart.Weapon ? "armor" : "damage";
 
             ChooseActionForFoundItem(Name, Type, Units, RandomBodyPart, null);
@@ -247,7 +244,7 @@ namespace MiniGame
                     }
                 }
 
-                Name = _namesItem.GetName("Heal", NameIndex);
+                Name = NamesItem.GetName("Heal", NameIndex);
                 Type = "heal";
 
                 ChooseActionForFoundItem(Name, Type, Units, null, NameIndex + 1);
@@ -258,7 +255,7 @@ namespace MiniGame
         {
             Console.WriteLine($"You found {name} has {units} {type}{(bodyPart.HasValue ? $" for {bodyPart}" : "")}");
 
-            string Res = _askQuestion.AskQuestionMain($"What do you want to do with the item?\n{(bodyPart.HasValue ? "Equip" : "Use")} the item: P;\nDon't take the item: D;\nPut the item in inventory: I;", "P", "D", "I");
+            string Res = AskQuestion.Main($"What do you want to do with the item?\n{(bodyPart.HasValue ? "Equip" : "Use")} the item: P;\nDon't take the item: D;\nPut the item in _inventory: I;", "P", "D", "I");
 
             switch (Res)
             {
@@ -272,7 +269,7 @@ namespace MiniGame
                     else
                         throw new ArgumentException("didn't have argument bodyPart or unitsForSale");
 
-                    Console.WriteLine("Item added to inventory");
+                    Console.WriteLine("Item added to _inventory");
                     break;
                 case "P":
                     if (bodyPart.HasValue)
@@ -281,7 +278,7 @@ namespace MiniGame
 
                         List<Dictionary<string, string>> arr;
 
-                        arr = bodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.WeaponInventory;
+                        arr = bodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.Weapon_inventory;
 
                         _inventory.EquipClothest(arr.ElementAt(arr.Count - 1), arr.Count - 1);
                     }
@@ -298,9 +295,9 @@ namespace MiniGame
 
         public void FightingWhitEnemy(Enemy enemy)
         {
-            Console.WriteLine($"What will you do? \n");
+            Console.WriteLine($"What will you do?");
 
-            string Res = _askQuestion.AskQuestionMain("Look your statistic: S;\nLook inventory: I;\nLook opponent's static: O;\nAttack him: A", "S", "I", "O", "A");
+            string Res = AskQuestion.Main("Look your statistic: S;\nLook _inventory: I;\nLook opponent's static: O;\nAttack him: A", "S", "I", "O", "A");
 
             switch (Res)
             {
@@ -308,7 +305,7 @@ namespace MiniGame
                     _player.ShowStatistic();
                     break;
                 case "I":
-                    _inventory.ShowInventory();
+                    _inventory.Show_inventory();
                     break;
                 case "O":
                     enemy.ShowStatistic();

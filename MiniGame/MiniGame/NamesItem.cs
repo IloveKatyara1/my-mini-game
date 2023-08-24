@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MiniGame
 {
-    internal class NamesItem
+    public static class NamesItem
     {
-        private readonly Dictionary<string, string[]> _names = new Dictionary<string, string[]>
+        private static readonly Dictionary<string, string[]> NamesItemDictionary = new Dictionary<string, string[]>
         {
             { "NamesHelmet", new[] { "Cracked Helm", "Leather Cap", "Guardian Visor", "Royal Crown" } },
             { "NamesBody", new[] { "Patchwork Jerkin", "Leatherbound Jerkin", "Granite Surcoat", "Royal Robes" } },
@@ -18,7 +18,7 @@ namespace MiniGame
             { "NamesHeal", new[] { "Small healing flask", "Medium healing flask", "Big healing flask", "Huge healing flask" }}
         };
 
-        public string GetName(string NameOutwithNames, int index)
+        public static string GetName(string NameOutwithNames, int index)
         {
             string CorrectName = $"Names{NameOutwithNames}";
             int CorrectIndex = index;
@@ -26,7 +26,7 @@ namespace MiniGame
             if (index > 4)
                 CorrectIndex = 3;
 
-            return _names[CorrectName][CorrectIndex];
+            return NamesItemDictionary[CorrectName][CorrectIndex];
         }
     }
 }

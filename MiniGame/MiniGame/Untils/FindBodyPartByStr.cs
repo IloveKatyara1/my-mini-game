@@ -7,9 +7,9 @@ using MiniGame.Enums;
 
 namespace MiniGame.Untils
 {
-    internal class FindBodyPartByStr
+    public static class FindBodyPartByStr
     {
-        public BodyPart Main(string bodyPart)
+        public static BodyPart Main(string bodyPart)
         {
             return bodyPart switch
             {

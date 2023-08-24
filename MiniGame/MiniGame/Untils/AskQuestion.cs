@@ -2,9 +2,9 @@
 
 namespace MiniGame.Untils
 {
-    internal class AskQuestion
+    public static class AskQuestion
     {
-        public string AskQuestionMain(string question, params string[] letters)
+        public static string Main(string question, params string[] letters)
         {
             string Res = "";
             bool IsAllOk = false;

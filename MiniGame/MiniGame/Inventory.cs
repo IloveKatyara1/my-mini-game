@@ -12,36 +12,29 @@ namespace MiniGame
 {
     internal class Inventory
     {
-        private readonly AskQuestion _askQuestion = new();
-        private readonly FindBodyPartByStr _findBodyPartByStr = new();
-        private readonly Player _player;
-
-        bool IsSeller = false;
+        private bool _isSeller = false;
+        private Player _player;
 
         public List<Dictionary<string, string>> Armor { get; private set; } = new List<Dictionary<string, string>>();
-        public List<Dictionary<string, string>> WeaponInventory { get; private set; } = new List<Dictionary<string, string>>();
-        public List<Dictionary<string, string>> Other { get; private set; } = new List<Dictionary<string, string>>();
+        public List<Dictionary<string, string>> Weapon_inventory { get; private set; } = new List<Dictionary<string, string>>();
+        public List<Dictionary<string, string>> Other { get; private set; } = new List<Dictionary<string, string>>()
+        {
+            new Dictionary<string, string>() { { "name", "Small healing flask" }, { "units", "20" }, { "type", "heal" }, { "unitsForSale", "1" } },
+            new Dictionary<string, string>() { { "name", "Medium healing flask" }, { "units", "50" }, { "type", "heal" }, { "unitsForSale", "2" } },
+            new Dictionary<string, string>() { { "name", "Big healing flask" }, { "units", "100" }, { "type", "heal" }, { "unitsForSale", "3" } },
+        };
         public Dictionary<BodyPart, Dictionary<string, string>> Equipped { get; private set; } = new Dictionary<BodyPart, Dictionary<string, string>>()
         {
             {BodyPart.Helmet, new Dictionary<string, string> { {"name", "null" }, { "units", "null" }, { "type", "armor" } } },
             {BodyPart.Body, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
-            {BodyPart.Legs, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
+            {BodyPart.Legs, new Dictionary<string, string> { { "name", "Metallic panties" }, { "units", "1" }, { "type", "armor" }, { "unitsForSale", "1" } } },
             {BodyPart.Shield, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "armor" } } },
-            {BodyPart.Weapon, new Dictionary<string, string> { { "name", "null" }, { "units", "null" }, { "type", "damage" } } }
+            {BodyPart.Weapon, new Dictionary<string, string> { { "name", "Toothpick" }, { "units", "1" }, { "type", "damage" }, { "unitsForSale", "1" } } }
         };
 
-        public Inventory(Player player)
+        public _inventory(Player player)
         {
             _player = player;
-
-            AddNewItem("Metallic panties", "armor", 1, BodyPart.Legs);
-            AddNewItem("Toothpick", "damage", 1, BodyPart.Weapon);
-            EquipClothest(Armor[0], 0);
-            EquipClothest(WeaponInventory[0], 0);
-
-            AddNewItem("Small healing flask", "heal", 20, 1);
-            AddNewItem("Big healing flask", "heal", 100, 3);
-            AddNewItem("Medium healing flask", "heal", 50, 2);
         }
 
         public void AddNewItem(string name, string type, int units, BodyPart bodyPart)
@@ -61,7 +54,7 @@ namespace MiniGame
                     Armor.Add(newItem);
                     break;
                 case "damage":
-                    WeaponInventory.Add(newItem);
+                    Weapon_inventory.Add(newItem);
                     break;
             }
         }
@@ -73,14 +66,14 @@ namespace MiniGame
             Other.Add(newItem);
         }
 
-        public void ShowInventory(bool isSeller = false)
+        public void Show_inventory(bool isSeller = false)
         {
-            IsSeller = isSeller;
+            _isSeller = isSeller;
 
-            Console.WriteLine($"\nYour Inventory:");
+            Console.WriteLine($"\nYour _inventory:");
             ShowEquippedItems(Equipped);
             ShowOneCategory(Armor, "armor", 'A');
-            ShowOneCategory(WeaponInventory, "damage", 'W');
+            ShowOneCategory(Weapon_inventory, "damage", 'W');
             ShowOneCategory(Other, "other", 'O');
 
             ChooseItem();
@@ -99,7 +92,7 @@ namespace MiniGame
 
                 string PriceItem = "";
 
-                if (itemInfo["units"] != "null" && IsSeller)
+                if (itemInfo["units"] != "null" && _isSeller)
                     PriceItem = $", price: {GetPriceItem(int.Parse(itemInfo["unitsForSale"]))}";
 
                 string ShowStr = $"    E{i}: {categoryName} equipped {itemInfo["name"]} have {itemInfo["type"]} {itemInfo["units"]}{PriceItem};";
@@ -130,11 +123,11 @@ namespace MiniGame
                     string BodyPart = category[i]["bodyPart"];
 
                     Console.WriteLine($"    {symbol}{i + 1}: {Name} have {name} {Units} for {BodyPart}" +
-                        $"{(IsSeller ? $", price: {GetPriceItem(int.Parse(category[i]["unitsForSale"]))}" : "")};");
+                        $"{(_isSeller ? $", price: {GetPriceItem(int.Parse(category[i]["unitsForSale"]))}" : "")};");
                 }
                 else
                     Console.WriteLine($"    {symbol}{i + 1}: {Name} have {category[i]["type"]} {Units}" +
-                        $"{(IsSeller ? $", price: {GetPriceItem(int.Parse(category[i]["unitsForSale"]))}" : "")};");
+                        $"{(_isSeller ? $", price: {GetPriceItem(int.Parse(category[i]["unitsForSale"]))}" : "")};");
             }
         }
         
@@ -143,11 +136,11 @@ namespace MiniGame
             List<string> Indexes = new List<string>() { "E" };
 
             AddToArrIndexes('A', Armor.Count, ref Indexes);
-            AddToArrIndexes('W', WeaponInventory.Count, ref Indexes);
+            AddToArrIndexes('W', Weapon_inventory.Count, ref Indexes);
             AddToArrIndexes('E', Equipped.Count, ref Indexes);
             AddToArrIndexes('O', Other.Count, ref Indexes);
 
-            string Res = _askQuestion.AskQuestionMain($"Select item by type number, or exit: E", Indexes.ToArray());
+            string Res = AskQuestion.Main($"Select item by type number, or exit: E", Indexes.ToArray());
 
             if (Res == "E")
                 return;
@@ -163,7 +156,7 @@ namespace MiniGame
                     ChooseActianForItem(CurrentIndex, Armor);
                     break;
                 case 'W':
-                    ChooseActianForItem(CurrentIndex, WeaponInventory);
+                    ChooseActianForItem(CurrentIndex, Weapon_inventory);
                     break;
                 case 'O':
                     ChooseActianForItem(CurrentIndex, Other, isClothes: false);
@@ -181,7 +174,7 @@ namespace MiniGame
             if (item["name"] == "null")
             {
                 Console.WriteLine("First you need to equip something");
-                ShowInventory(IsSeller);
+                Show_inventory(_isSeller);
                 return;
             }
 
@@ -189,14 +182,14 @@ namespace MiniGame
 
             string[] CharsForQuestion = new string[]{ "P", "T", "B", "E" };
 
-            if (IsSeller)
+            if (_isSeller)
                 CharsForQuestion = new string[] { "P", "T", "B", "E", "S" };
 
-            string Res = _askQuestion.AskQuestionMain($"What do you want to do whith this item " +
+            string Res = AskQuestion.Main($"What do you want to do whith this item " +
                 $"\nUnequip the item : P;" +
                 $"\nThrow away the item: T;" +
                 $"\nBack to all items: B;" +
-                $"{(IsSeller ? $"\nSell the item: S; (price of the item:{GetPriceItem(int.Parse(item["unitsForSale"]))})" : "")}" +
+                $"{(_isSeller ? $"\nSell the item: S; (price of the item:{GetPriceItem(int.Parse(item["unitsForSale"]))})" : "")}" +
                 $"\nExit: E", 
                 CharsForQuestion);
 
@@ -220,7 +213,7 @@ namespace MiniGame
                     break;
             }
 
-            ShowInventory(IsSeller);
+            Show_inventory(_isSeller);
         }
 
         private void MakeDefaultEquipped(BodyPart itemKey, Dictionary<string, string> item)
@@ -247,16 +240,16 @@ namespace MiniGame
 
             string[] CharsForQuestion = new string[] { "P", "T", "B", "E" };
 
-            if (IsSeller)
+            if (_isSeller)
                 CharsForQuestion = new string[] { "P", "T", "B", "E", "S" };
 
             Console.WriteLine($"You selected: {item["name"]}, {item["type"]}: {item["units"]}");
 
-            string ResSecond = _askQuestion.AskQuestionMain($"What do you want to do with this item?" +
+            string ResSecond = AskQuestion.Main($"What do you want to do with this item?" +
                 $"\n{(isClothes ? "Equip" : "Use")} the item: P;" +
                 $"\nThrow away the item: T;" +
                 $"\nBack to all items: B;" +
-                $"{(IsSeller ? $"\nSell the item: S; (price of the item: {GetPriceItem(int.Parse(item["unitsForSale"]))})" : "")}" +
+                $"{(_isSeller ? $"\nSell the item: S; (price of the item: {GetPriceItem(int.Parse(item["unitsForSale"]))})" : "")}" +
                 $"\nExit: E",
                 CharsForQuestion);
 
@@ -283,14 +276,14 @@ namespace MiniGame
                     return;
             }
 
-            ShowInventory(IsSeller);
+            Show_inventory(_isSeller);
         }
 
         private void SellItem(Dictionary<string, string> item, string? bodyPart)
         {
             int PriceItem = GetPriceItem(int.Parse(item["unitsForSale"]));
 
-            string Res = _askQuestion.AskQuestionMain(
+            string Res = AskQuestion.Main(
             $"Are you sure want to sell the {item["name"]}, {item["type"]}: {item["units"]}{(bodyPart != null ? $" for {bodyPart}" : "")}. You will receive {PriceItem} money. Y/N",
             "Y", "N");
 
@@ -313,12 +306,12 @@ namespace MiniGame
 
         public void EquipClothest(Dictionary<string, string> item, int index)
         {
-            BodyPart CurrentBodyPart = _findBodyPartByStr.Main(item["bodyPart"]);
+            BodyPart CurrentBodyPart = FindBodyPartByStr.Main(item["bodyPart"]);
 
             if (Equipped[CurrentBodyPart]["name"] != "null")
             {
                 Console.WriteLine($"You already have the equipped {Equipped[CurrentBodyPart]["name"]} have {Equipped[CurrentBodyPart]["type"]} {Equipped[CurrentBodyPart]["units"]}, do you want to change it to {item["name"]} have {item["type"]} {item["units"]}?");
-                string Res = _askQuestion.AskQuestionMain($"Y/N", "Y", "N");
+                string Res = AskQuestion.Main($"Y/N", "Y", "N");
 
                 if (Res == "N")
                     return;
@@ -349,7 +342,7 @@ namespace MiniGame
                     Armor.RemoveAt(index);
                     break;
                 case "damage":
-                    WeaponInventory.RemoveAt(index);
+                    Weapon_inventory.RemoveAt(index);
                     break;
                 default:
                     Other.RemoveAt(index);

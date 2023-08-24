@@ -12,12 +12,9 @@ namespace MiniGame
 {
     internal class Seller
     {
-        private readonly NamesItem _names = new();
         private readonly Random _random = new Random();
-        private readonly AskQuestion _ask = new();
-        private readonly FindBodyPartByStr _findBodyPartByStr = new();
         private readonly Inventory _inventory;
-        private readonly Player _player;
+        private readonly Player Player;
 
         private Dictionary<string, string>[] _clothestItems;
         private Dictionary<string, string>[] _healItems;
@@ -25,7 +22,7 @@ namespace MiniGame
         public Seller(Player player, Inventory inv) 
         {
             _inventory = inv;
-            _player = player;
+            Player = player;
 
             _clothestItems = new Dictionary<string, string>[]
             {
@@ -39,7 +36,7 @@ namespace MiniGame
             _healItems = new Dictionary<string, string>[]
             {
                 new Dictionary<string, string> {
-                    { "name", _names.GetName("Heal", 0) },
+                    { "name", NamesItem.GetName("Heal", 0) },
                     { "units", "20" },
                     { "type", "heal" },
                     { "price", GetPrice(1).ToString() },
@@ -47,7 +44,7 @@ namespace MiniGame
                     { "avaibleItems", "3"}
                 },
                 new Dictionary<string, string> {
-                    { "name", _names.GetName("Heal", 1) },
+                    { "name", NamesItem.GetName("Heal", 1) },
                     { "units", "50" },
                     { "type", "heal" },
                     { "price", GetPrice(2).ToString() },
@@ -55,7 +52,7 @@ namespace MiniGame
                     { "avaibleItems", "2"}
                 },
                 new Dictionary<string, string> {
-                    { "name", _names.GetName("Heal", 2) },
+                    { "name", NamesItem.GetName("Heal", 2) },
                     { "units", "100" },
                     { "type", "heal" },
                     { "price", GetPrice(3).ToString() },
@@ -63,7 +60,7 @@ namespace MiniGame
                     { "avaibleItems", "1"}
                 },
                 new Dictionary<string, string> {
-                    { "name", _names.GetName("Heal", 3) },
+                    { "name", NamesItem.GetName("Heal", 3) },
                     { "units", "999" },
                     { "type", "heal" },
                     { "price", GetPrice(4).ToString() },
@@ -87,7 +84,7 @@ namespace MiniGame
             AddToArrIndexes('C', _clothestItems.Length, ref ArrIndex);
             AddToArrIndexes('H', _healItems.Length, ref ArrIndex);
 
-            string Res = _ask.AskQuestionMain("Would you like to buy something, write the index of item;\nto look your inventory: I;\nto sell something for saller: L;\nto look your statistics: S;\nwrite E for exit", ArrIndex.ToArray());
+            string Res = AskQuestion.Main("Would you like to buy something, write the index of item;\nto look your _inventory: I;\nto sell something for saller: L;\nto look your statistics: S;\nwrite E for exit", ArrIndex.ToArray());
 
             if (Res == "E")
                 return;
@@ -97,13 +94,13 @@ namespace MiniGame
                 case "E":
                     return;
                 case "I":
-                    _inventory.ShowInventory();
+                    _inventory.Show_inventory();
                     break;
                 case "S":
-                    _player.ShowStatistic();
+                    Player.ShowStatistic();
                     break;
                 case "L":
-                    _inventory.ShowInventory(isSeller: true);
+                    _inventory.Show_inventory(isSeller: true);
                     break;
                 default:
                     int CurrentIndex = int.Parse(Res.Substring(1)) - 1;
@@ -130,7 +127,7 @@ namespace MiniGame
         {
             int CorrectPrice = int.Parse(item["price"]);
 
-            if (CorrectPrice > _player.Money)
+            if (CorrectPrice > Player.Money)
             {
                 Console.WriteLine("You don't have enough money, to buy it");
                 return;
@@ -139,14 +136,14 @@ namespace MiniGame
             string Res;
 
             if (item["type"] == "armor" || item["type"] == "damage")
-                Res = _ask.AskQuestionMain($"Are you sure want to buy the, {item["name"]} have {item["type"]} {item["units"]} for {item["bodyPart"]}, avaible items {item["avaibleItems"]}, price {item["price"]} (you have {_player.Money} money), Y/N;", "Y", "N");
+                Res = AskQuestion.Main($"Are you sure want to buy the, {item["name"]} have {item["type"]} {item["units"]} for {item["bodyPart"]}, avaible items {item["avaibleItems"]}, price {item["price"]} (you have {Player.Money} money), Y/N;", "Y", "N");
             else
-                Res = _ask.AskQuestionMain($"Are you sure want to buy the, {item["name"]} have {item["type"]} {item["units"]}, avaible items {item["avaibleItems"]}, price {item["price"]} (you have {_player.Money} money), Y/N;", "Y", "N");
+                Res = AskQuestion.Main($"Are you sure want to buy the, {item["name"]} have {item["type"]} {item["units"]}, avaible items {item["avaibleItems"]}, price {item["price"]} (you have {Player.Money} money), Y/N;", "Y", "N");
 
             if (Res == "N")
                 return;
 
-            _player.ModifyMoney(-CorrectPrice);
+            Player.ModifyMoney(-CorrectPrice);
 
             Console.WriteLine("You bought the item");
 
@@ -170,26 +167,26 @@ namespace MiniGame
             string Type = item["type"];
             int Units = int.Parse(item["units"]);
 
-            Res = _ask.AskQuestionMain($"What do you want to do with the item?\n{(isBodyPart ? "Equip" : "Use")} the item: P;\nPut the item in inventory: I;", "P", "I");
+            Res = AskQuestion.Main($"What do you want to do with the item?\n{(isBodyPart ? "Equip" : "Use")} the item: P;\nPut the item in _inventory: I;", "P", "I");
 
             switch (Res)
             {
                 case "I":
                     if (isBodyPart)
-                        _inventory.AddNewItem(item["name"], Type, Units, _findBodyPartByStr.Main(item["bodyPart"]));
+                        _inventory.AddNewItem(item["name"], Type, Units, FindBodyPartByStr.Main(item["bodyPart"]));
                     else
                         _inventory.AddNewItem(Name, Type, Units, int.Parse(item["unitsForSale"]));
 
-                    Console.WriteLine("Item added to inventory");
+                    Console.WriteLine("Item added to _inventory");
                     break;
                 case "P":
                     if (isBodyPart)
                     {
-                        _inventory.AddNewItem(Name, Type, Units, _findBodyPartByStr.Main(item["bodyPart"]));
+                        _inventory.AddNewItem(Name, Type, Units, FindBodyPartByStr.Main(item["bodyPart"]));
 
                         List<Dictionary<string, string>> arr;
 
-                        arr = _findBodyPartByStr.Main(item["bodyPart"]) != BodyPart.Weapon ? _inventory.Armor : _inventory.WeaponInventory;
+                        arr = FindBodyPartByStr.Main(item["bodyPart"]) != BodyPart.Weapon ? _inventory.Armor : _inventory.Weapon_inventory;
 
                         _inventory.EquipClothest(arr.ElementAt(arr.Count - 1), arr.Count - 1);
                     }
@@ -234,7 +231,7 @@ namespace MiniGame
         private Dictionary<string, string> GetNewClothest(string type, BodyPart bodyPart)
         {
             int Units;
-            int MaxValueForRandom = 10 + (_player.Lvl < 5 ? 0 : _player.Lvl - 5);
+            int MaxValueForRandom = 10 + (Player.Lvl < 5 ? 0 : Player.Lvl - 5);
 
             int RandomItem = _random.Next(1, MaxValueForRandom);
 
@@ -245,12 +242,12 @@ namespace MiniGame
             else
                 Units = 4;
 
-            Units += _player.Lvl >= 5 ? _player.Lvl - 5 : 0;
+            Units += Player.Lvl >= 5 ? Player.Lvl - 5 : 0;
 
             int Price = GetPrice(Units);
 
             return new Dictionary<string, string> { 
-                { "name", _names.GetName(bodyPart.ToString(), Units - 1) }, 
+                { "name", NamesItem.GetName(bodyPart.ToString(), Units - 1) }, 
                 { "units", Units.ToString() },
                 { "bodyPart", bodyPart.ToString() },
                 { "type", type }, 
@@ -264,8 +261,8 @@ namespace MiniGame
             int Price = unitsItem * 100;
 
 
-            if (_player.Lvl > 6)
-                Price += (_player.Lvl - 5) * 5;
+            if (Player.Lvl > 6)
+                Price += (Player.Lvl - 5) * 5;
 
             return Price;
         }
