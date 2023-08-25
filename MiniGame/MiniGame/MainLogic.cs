@@ -42,7 +42,6 @@ namespace MiniGame
                     Console.WriteLine("You found an empty room");
                 else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom + Something)
                 {
-                    Console.WriteLine("You found something");
                     switch (Res)
                     {
                         case "L":
@@ -66,7 +65,7 @@ namespace MiniGame
         {
             Console.WriteLine($"\nPlease, choose the action");
 
-            string Res = AskQuestion.Main($"Look statistic: S;\nLook _inventory: I;\nContinue your way: W;", "S", "I", "W");
+            string Res = AskQuestion.Main($"Look statistic: S;\nLook inventory: I;\nContinue your way: W;", "S", "I", "W");
 
             switch (Res)
             {
@@ -255,7 +254,11 @@ namespace MiniGame
         {
             Console.WriteLine($"You found {name} has {units} {type}{(bodyPart.HasValue ? $" for {bodyPart}" : "")}");
 
-            string Res = AskQuestion.Main($"What do you want to do with the item?\n{(bodyPart.HasValue ? "Equip" : "Use")} the item: P;\nDon't take the item: D;\nPut the item in _inventory: I;", "P", "D", "I");
+            string Res = AskQuestion.Main(
+                $"What do you want to do with the item?" +
+                $"\n{(bodyPart.HasValue ? "Equip" : "Use")} the item: P;" +
+                $"\nDon't take the item: D;" +
+                $"\nPut the item in inventory: I;", "P", "D", "I");
 
             switch (Res)
             {
@@ -297,7 +300,14 @@ namespace MiniGame
         {
             Console.WriteLine($"What will you do?");
 
-            string Res = AskQuestion.Main("Look your statistic: S;\nLook _inventory: I;\nLook opponent's static: O;\nAttack him: A", "S", "I", "O", "A");
+            string Res = AskQuestion.Main(
+                "Look your statistic: S;" +
+                "\nAuto fighting: U;" +
+                "\nLook inventory: I;" +
+                "\nLook opponent's static: O;" +
+                "\nAttack him: A", 
+                "S", "I", "O", "A", "U"
+                );
 
             switch (Res)
             {
@@ -310,37 +320,47 @@ namespace MiniGame
                 case "O":
                     enemy.ShowStatistic();
                     break;
+                case "U":
+                    while(enemy.Health != 0 || _player.Health != 0)
+                    {
+                        if(enemy.Damage + 3 - _player.Armor >= _player.Health && enemy.Health > _player.Damage - 3 - enemy.Armor)
+                        {
+                            Console.WriteLine("If you continue auto fighting, you can die");
+
+                            if (AskQuestion.Main("Are you sure want to continue auto fighting. Y/N", "Y", "N") == "N")
+                                break;
+                        }
+                        Attack(enemy);
+                    }
+                    break;
                 case "A":
-                    int Damage = _player.AttackSomebody();
-                    int ShowHit = Damage - enemy.Armor < 0 ? 0 : Damage - enemy.Armor;
-
-                    enemy.TakeDamage(Damage);
-
-                    Console.WriteLine($"You attacked him for {ShowHit}hp, him hp is {enemy.GetHealth()}\n");
-
-                    if (enemy.Health <= 0)
-                    {
-                        Console.WriteLine($"You killed the opponent your hp is {_player.GetHealth()}");
-                        return;
-                    }
-
-                    Damage = enemy.AttackSomebody();
-                    ShowHit = Damage - _player.Armor < 0 ? 0 : Damage - enemy.Armor;
-
-                    _player.TakeDamage(Damage);
-
-                    Console.WriteLine($"He attacked you for {ShowHit}hp, your hp is {_player.GetHealth()}\n");
-
-                    if (_player.Health <= 0)
-                    {
-                        _player.ShowStatistic();
-                        Console.WriteLine("You died");
-                        Environment.Exit(0);
-                    }
+                    Attack(enemy);
                     break;
             }
 
             FightingWhitEnemy(enemy);
+        }
+
+        private void Attack(Enemy enemy)
+        {
+            int EntityDamage = enemy.TakeDamage(_player.AttackSomebody());
+            Console.WriteLine($"You attacked him for {EntityDamage}hp, him hp is {enemy.GetHealth()}\n");
+
+            if (enemy.Health == 0)
+            {
+                Console.WriteLine($"You killed the opponent your hp is {_player.GetHealth()}");
+                return;
+            }
+
+            EntityDamage = _player.TakeDamage(enemy.AttackSomebody());
+            Console.WriteLine($"He attacked you for {EntityDamage}hp, your hp is {_player.GetHealth()}\n");
+
+            if (_player.Health == 0)
+            {
+                _player.ShowStatistic();
+                Console.WriteLine("You died");
+                Environment.Exit(0);
+            }
         }
     }
 }

@@ -23,7 +23,7 @@ namespace MiniGame
             Damage = damage;
         }
 
-        public void TakeDamage(int damage)
+        public int TakeDamage(int damage)
         {
             damage -= Armor;
 
@@ -33,6 +33,8 @@ namespace MiniGame
                 damage = Health;
 
             Health -= damage;
+
+            return damage;
         }
 
         public void HealHealth(int heal)
@@ -45,15 +47,9 @@ namespace MiniGame
             Health += heal;
         }
 
-        public string GetHealth() 
-        {
-            return $"{Health}/{StartHealth}";
-        }
+        public string GetHealth() => $"{Health}/{StartHealth}";
 
-        public int AttackSomebody()
-        {
-            return Damage + random.Next(-3, 4);
-        }
+        public int AttackSomebody() => Damage + random.Next(-3, 4);
 
         public abstract void ShowStatistic();
     }

@@ -32,7 +32,7 @@ namespace MiniGame
             {BodyPart.Weapon, new Dictionary<string, string> { { "name", "Toothpick" }, { "units", "1" }, { "type", "damage" }, { "unitsForSale", "1" } } }
         };
 
-        public _inventory(Player player)
+        public Inventory(Player player)
         {
             _player = player;
         }
