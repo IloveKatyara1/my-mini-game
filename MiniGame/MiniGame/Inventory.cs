@@ -16,7 +16,7 @@ namespace MiniGame
         private Player _player;
 
         public List<Dictionary<string, string>> Armor { get; private set; } = new List<Dictionary<string, string>>();
-        public List<Dictionary<string, string>> Weapon_inventory { get; private set; } = new List<Dictionary<string, string>>();
+        public List<Dictionary<string, string>> WeaponInventory { get; private set; } = new List<Dictionary<string, string>>();
         public List<Dictionary<string, string>> Other { get; private set; } = new List<Dictionary<string, string>>()
         {
             new Dictionary<string, string>() { { "name", "Small healing flask" }, { "units", "20" }, { "type", "heal" }, { "unitsForSale", "1" } },
@@ -54,7 +54,7 @@ namespace MiniGame
                     Armor.Add(newItem);
                     break;
                 case "damage":
-                    Weapon_inventory.Add(newItem);
+                    WeaponInventory.Add(newItem);
                     break;
             }
         }
@@ -66,14 +66,14 @@ namespace MiniGame
             Other.Add(newItem);
         }
 
-        public void Show_inventory(bool isSeller = false)
+        public void ShowInventory(bool isSeller = false)
         {
             _isSeller = isSeller;
 
             Console.WriteLine($"\nYour _inventory:");
             ShowEquippedItems(Equipped);
             ShowOneCategory(Armor, "armor", 'A');
-            ShowOneCategory(Weapon_inventory, "damage", 'W');
+            ShowOneCategory(WeaponInventory, "damage", 'W');
             ShowOneCategory(Other, "other", 'O');
 
             ChooseItem();
@@ -136,7 +136,7 @@ namespace MiniGame
             List<string> Indexes = new List<string>() { "E" };
 
             AddToArrIndexes('A', Armor.Count, ref Indexes);
-            AddToArrIndexes('W', Weapon_inventory.Count, ref Indexes);
+            AddToArrIndexes('W', WeaponInventory.Count, ref Indexes);
             AddToArrIndexes('E', Equipped.Count, ref Indexes);
             AddToArrIndexes('O', Other.Count, ref Indexes);
 
@@ -156,7 +156,7 @@ namespace MiniGame
                     ChooseActianForItem(CurrentIndex, Armor);
                     break;
                 case 'W':
-                    ChooseActianForItem(CurrentIndex, Weapon_inventory);
+                    ChooseActianForItem(CurrentIndex, WeaponInventory);
                     break;
                 case 'O':
                     ChooseActianForItem(CurrentIndex, Other, isClothes: false);
@@ -174,7 +174,7 @@ namespace MiniGame
             if (item["name"] == "null")
             {
                 Console.WriteLine("First you need to equip something");
-                Show_inventory(_isSeller);
+                ShowInventory(_isSeller);
                 return;
             }
 
@@ -213,7 +213,7 @@ namespace MiniGame
                     break;
             }
 
-            Show_inventory(_isSeller);
+            ShowInventory(_isSeller);
         }
 
         private void MakeDefaultEquipped(BodyPart itemKey, Dictionary<string, string> item)
@@ -257,7 +257,7 @@ namespace MiniGame
             {
                 case "P":
                     if (isClothes)
-                        EquipClothest(item, index);
+                        EquipClothes(item, index);
                     else
                         UseItem(item);
                     break;
@@ -276,7 +276,7 @@ namespace MiniGame
                     return;
             }
 
-            Show_inventory(_isSeller);
+            ShowInventory(_isSeller);
         }
 
         private void SellItem(Dictionary<string, string> item, string? bodyPart)
@@ -304,7 +304,7 @@ namespace MiniGame
             }
         }
 
-        public void EquipClothest(Dictionary<string, string> item, int index)
+        public void EquipClothes(Dictionary<string, string> item, int index)
         {
             BodyPart CurrentBodyPart = FindBodyPartByStr.Main(item["bodyPart"]);
 
@@ -342,7 +342,7 @@ namespace MiniGame
                     Armor.RemoveAt(index);
                     break;
                 case "damage":
-                    Weapon_inventory.RemoveAt(index);
+                    WeaponInventory.RemoveAt(index);
                     break;
                 default:
                     Other.RemoveAt(index);

@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MiniGame
 {
-    internal class  Player : Entity
+    internal class Player : Entity
     {
         public int CompletedRooms { get; private set; } = 0;
-        private int _needCompleteRoomsForNextLvl = 1;
-        public int Lvl { get; private set; } = 1;
+        private int _needCompletedRoomsForNextLevel = 1;
+        public int Level { get; private set; } = 1;
         public int Money { get; private set; } = 0;
 
-
-        public Player() : base (100,0, 10)
+        public Player() : base(100, 0, 10)
         {
         }
 
         public void ModifyMoney(int units)
         {
             if (units * -1 > Money)
-                throw new ArgumentException("the minus bigger then palyer money");
+                throw new ArgumentException("The negative value is greater than the player's money.");
 
             Money += units;
         }
@@ -36,27 +31,27 @@ namespace MiniGame
             base.Damage += damage;
         }
 
-        public override void ShowStatistic()
+        public override void ShowStatistics()
         {
             Console.WriteLine($"Your statistics:" +
                 $"\nHealth: {base.GetHealth()}" +
                 $"\nArmor: {Armor}" +
                 $"\nDamage: {Damage}" +
                 $"\nCompleted rooms: {CompletedRooms}" +
-                $"\nYour level: {Lvl}" +
-                $"\nRooms need to complete for the next level: {_needCompleteRoomsForNextLvl - CompletedRooms};" +
-                $"\nYou have {Money} money");
+                $"\nYour level: {Level}" +
+                $"\nRooms needed to complete for the next level: {_needCompletedRoomsForNextLevel - CompletedRooms};" +
+                $"\nYou have {Money} money.");
         }
 
         public void AddNewCompletedRoom()
         {
             CompletedRooms++;
 
-            if(_needCompleteRoomsForNextLvl == CompletedRooms)
+            if (_needCompletedRoomsForNextLevel == CompletedRooms)
             {
-                _needCompleteRoomsForNextLvl *= 3;
+                _needCompletedRoomsForNextLevel *= 3;
 
-                Console.WriteLine($"Your level upgraded, now your level is {++Lvl}, you need to complete {_needCompleteRoomsForNextLvl - CompletedRooms} rooms for the next upgrade.");
+                Console.WriteLine($"Your level has been upgraded. Your new level is {++Level}. You need to complete {_needCompletedRoomsForNextLevel - CompletedRooms} rooms for the next upgrade.");
 
                 base.StartHealth++;
                 base.Health = base.StartHealth;

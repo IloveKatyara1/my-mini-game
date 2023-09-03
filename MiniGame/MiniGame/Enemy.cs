@@ -9,14 +9,14 @@ namespace MiniGame
 {
     internal class Enemy : Entity
     {
-        private DiffucultEnemyes _difficulty;
+        private DifficultEnemies _difficulty;
 
-        public Enemy(DiffucultEnemyes difficulty, int health, int damage, int armor) : base(health, armor, damage)
+        public Enemy(DifficultEnemies difficulty, int health, int damage, int armor) : base(health, armor, damage)
         {
             _difficulty = difficulty;
         }
 
-        public override void ShowStatistic()
+        public override void ShowStatistics()
         {
             Console.WriteLine($"Opponent statistic: \nHealth: {base.GetHealth()} \nArmor: {Armor} \nDamage: {Damage} \nDifficulty: {_difficulty}");
         }

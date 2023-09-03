@@ -51,6 +51,6 @@ namespace MiniGame
 
         public int AttackSomebody() => Damage + random.Next(-3, 4);
 
-        public abstract void ShowStatistic();
+        public abstract void ShowStatistics();
     }
 }

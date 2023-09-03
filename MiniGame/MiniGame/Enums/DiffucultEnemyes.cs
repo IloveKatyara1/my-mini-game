@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace MiniGame.Enums
 {
-    enum DiffucultEnemyes
-    {
+    enum DifficultEnemies
+    { 
         Normal,
-        Diffuclt,
+        Difficult,
         Boss
     }
 }

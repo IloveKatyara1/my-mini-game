@@ -1,6 +1,8 @@
 ﻿using MiniGame.Enums;
 using MiniGame.Untils;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MiniGame
 {
@@ -17,11 +19,11 @@ namespace MiniGame
 
         public void WhereGo()
         {
-            Console.WriteLine($"\nWhere would you like to go?");
+            Console.WriteLine("\nWhere would you like to go?");
 
-            string Res = AskQuestion.Main("L/M/R", "L", "M", "R");
+            string Response = AskQuestion.Main("L/M/R", "L", "M", "R");
 
-            int randomNumber = random.Next(1, 101);
+            int RandomNumber = random.Next(1, 101);
 
             int SimpleOpponent = 77;
             int DifficultOpponent = 10;
@@ -30,29 +32,29 @@ namespace MiniGame
 
             if (_player.CompletedRooms != 0 && _player.CompletedRooms % 9 == 0)
             {
-                CreateNewEnemy(DiffucultEnemyes.Boss);
+                CreateNewEnemy(DifficultEnemies.Boss);
             }
             else
             {
-                if (randomNumber <= SimpleOpponent || randomNumber <= SimpleOpponent + DifficultOpponent && _player.Lvl < 4)
-                    CreateNewEnemy(DiffucultEnemyes.Normal);
-                else if (randomNumber <= SimpleOpponent + DifficultOpponent)
-                    CreateNewEnemy(DiffucultEnemyes.Diffuclt);
-                else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom)
+                if (RandomNumber <= SimpleOpponent || (RandomNumber <= SimpleOpponent + DifficultOpponent && _player.Level < 4))
+                    CreateNewEnemy(DifficultEnemies.Normal);
+                else if (RandomNumber <= SimpleOpponent + DifficultOpponent)
+                    CreateNewEnemy(DifficultEnemies.Difficult);
+                else if (RandomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom)
                     Console.WriteLine("You found an empty room");
-                else if (randomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom + Something)
+                else if (RandomNumber <= SimpleOpponent + DifficultOpponent + EmptyRoom + Something)
                 {
-                    switch (Res)
+                    switch (Response)
                     {
                         case "L":
                             Seller seller = new(_player, _inventory);
                             seller.Start();
                             break;
                         case "M":
-                            FoundChest(maxRandomForHeal: 6, maxRanbomForMoney: 5, fromBoss: false);
+                            FoundChest(maxRandomForHeal: 6, maxRandomForMoney: 5, fromBoss: false);
                             break;
                         case "R":
-                            CreateNewEnemy(DiffucultEnemyes.Diffuclt);
+                            CreateNewEnemy(DifficultEnemies.Difficult);
                             break;
                     }
                 }
@@ -63,87 +65,87 @@ namespace MiniGame
 
         public void GoNextRoom()
         {
-            Console.WriteLine($"\nPlease, choose the action");
+            Console.WriteLine("\nPlease, choose an action");
 
-            string Res = AskQuestion.Main($"Look statistic: S;\nLook inventory: I;\nContinue your way: W;", "S", "I", "W");
+            string Response = AskQuestion.Main("Look at statistics: S;\nLook at inventory: I;\nContinue your way: W;", "S", "I", "W");
 
-            switch (Res)
+            switch (Response)
             {
                 case "W":
                     WhereGo();
                     break;
                 case "S":
-                    _player.ShowStatistic();
+                    _player.ShowStatistics();
                     break;
                 case "I":
-                    _inventory.Show_inventory();
+                    _inventory.ShowInventory();
                     break;
             }
 
             GoNextRoom();
         }
 
-        public void CreateNewEnemy(DiffucultEnemyes difficulty)
+        public void CreateNewEnemy(DifficultEnemies difficulty)
         {
             Console.WriteLine($"You found a {difficulty.ToString().ToLower()} opponent");
 
-            int Health = random.Next(85, 106); 
-            int Damage = random.Next(7, 13);
+            int Health = random.Next(85, 101);
+            int Damage = random.Next(7, 11);
             int Armor = random.Next(0, 4);
             int EnemyMoneyDropped = random.Next(1, 20);
 
-            if (difficulty == DiffucultEnemyes.Diffuclt)
+            if (difficulty == DifficultEnemies.Difficult)
             {
                 Health += 5;
                 Damage += 2;
                 Armor += 2;
                 EnemyMoneyDropped += 10;
-            } 
-            else if (difficulty == DiffucultEnemyes.Boss)
+            }
+            else if (difficulty == DifficultEnemies.Boss)
             {
                 Health += 25;
-                Damage += 20;
+                Damage += 10;
                 Armor += 8;
                 EnemyMoneyDropped += 600;
             }
 
-            if(_player.Lvl >= 5)
+            if (_player.Level >= 5)
             {
-                int PlusNum = _player.Lvl - 4;
+                int plusNum = _player.Level - 4;
 
-                Health += PlusNum;
-                Damage += PlusNum;
-                Armor += PlusNum;
-                EnemyMoneyDropped += PlusNum;
+                Health += plusNum;
+                Damage += plusNum;
+                Armor += plusNum;
+                EnemyMoneyDropped += plusNum;
             }
 
             Enemy NewEnemy = new(difficulty, Health, Damage, Armor);
-            NewEnemy.ShowStatistic();
+            NewEnemy.ShowStatistics();
 
-            FightingWhitEnemy(NewEnemy);
+            FightingWithEnemy(NewEnemy);
 
-            Console.WriteLine($"After killed {(difficulty == DiffucultEnemyes.Boss ? "boss" : "enemy")}, he droped {EnemyMoneyDropped} money");
+            Console.WriteLine($"After killing the {(difficulty == DifficultEnemies.Boss ? "boss" : "enemy")}, they dropped {EnemyMoneyDropped} money");
             _player.ModifyMoney(EnemyMoneyDropped);
 
-            if(difficulty == DiffucultEnemyes.Boss)
+            if (difficulty == DifficultEnemies.Boss)
             {
-                FoundChest(maxRandomForHeal: 2, maxRanbomForMoney: 2, fromBoss: true);
-                FoundChest(maxRandomForHeal: 2, maxRanbomForMoney: 2, fromBoss: true);
+                FoundChest(maxRandomForHeal: 2, maxRandomForMoney: 2, fromBoss: true);
+                FoundChest(maxRandomForHeal: 2, maxRandomForMoney: 2, fromBoss: true);
 
-                Seller Seller = new(_player, _inventory);
-                Seller.Start();
+                Seller seller = new(_player, _inventory);
+                seller.Start();
             }
             else if (random.Next(1, 9) == 1)
             {
-                FoundChest(maxRandomForHeal: 6, maxRanbomForMoney: 5, fromBoss: false);
+                FoundChest(maxRandomForHeal: 6, maxRandomForMoney: 5, fromBoss: false);
             }
         }
 
-        public void FoundChest(int maxRandomForHeal, int maxRanbomForMoney, bool fromBoss)
+        public void FoundChest(int maxRandomForHeal, int maxRandomForMoney, bool fromBoss)
         {
             Console.WriteLine("You found a chest, do you want to open it?");
 
-            if (AskQuestion.Main($"Y/N", "Y", "N") == "N")
+            if (AskQuestion.Main("Y/N", "Y", "N") == "N")
                 return;
 
             int Units;
@@ -157,7 +159,7 @@ namespace MiniGame
                 else
                     Units = 4;
 
-                Units += _player.Lvl >= 5 ? _player.Lvl - 5 : 0;
+                Units += _player.Level >= 5 ? _player.Level - 5 : 0;
             }
             else
             {
@@ -172,10 +174,10 @@ namespace MiniGame
             BodyPart RandomBodyPart = (BodyPart)random.Next(0, 5);
             string Name = NamesItem.GetName(RandomBodyPart.ToString(), Units - 1);
             string Type = RandomBodyPart != BodyPart.Weapon ? "armor" : "damage";
-
+            
             ChooseActionForFoundItem(Name, Type, Units, RandomBodyPart, null);
 
-            if (random.Next(1, maxRanbomForMoney) == 1)
+            if (random.Next(1, maxRandomForMoney) == 1)
             {
                 int MoneyDropped;
 
@@ -186,7 +188,7 @@ namespace MiniGame
                     else
                         MoneyDropped = 100;
 
-                    MoneyDropped += _player.Lvl >= 5 ? _player.Lvl - 5 : 0 * 2;
+                    MoneyDropped += _player.Level >= 5 ? (_player.Level - 5) * 2 : 0;
                 }
                 else
                 {
@@ -197,13 +199,12 @@ namespace MiniGame
                     else
                         MoneyDropped = 30;
 
-                    MoneyDropped += _player.Lvl >= 5 ? _player.Lvl - 5 : 0 * 2;
+                    MoneyDropped += _player.Level >= 5 ? (_player.Level - 5) * 2 : 0;
                 }
 
                 Console.WriteLine($"You found {MoneyDropped} money");
                 _player.ModifyMoney(MoneyDropped);
             }
-
 
             if (random.Next(1, maxRandomForHeal) == 1)
             {
@@ -252,15 +253,15 @@ namespace MiniGame
 
         public void ChooseActionForFoundItem(string name, string type, int units, BodyPart? bodyPart, int? unitsForSale)
         {
-            Console.WriteLine($"You found {name} has {units} {type}{(bodyPart.HasValue ? $" for {bodyPart}" : "")}");
+            Console.WriteLine($"You found {name} with {units} {type}{(bodyPart.HasValue ? $" for {bodyPart}" : "")}");
 
-            string Res = AskQuestion.Main(
+            string response = AskQuestion.Main(
                 $"What do you want to do with the item?" +
                 $"\n{(bodyPart.HasValue ? "Equip" : "Use")} the item: P;" +
                 $"\nDon't take the item: D;" +
                 $"\nPut the item in inventory: I;", "P", "D", "I");
 
-            switch (Res)
+            switch (response)
             {
                 case "D":
                     return;
@@ -270,9 +271,9 @@ namespace MiniGame
                     else if (unitsForSale.HasValue)
                         _inventory.AddNewItem(name, type, units, (int)unitsForSale);
                     else
-                        throw new ArgumentException("didn't have argument bodyPart or unitsForSale");
+                        throw new ArgumentException("Argument bodyPart or unitsForSale is missing");
 
-                    Console.WriteLine("Item added to _inventory");
+                    Console.WriteLine("Item added to inventory");
                     break;
                 case "P":
                     if (bodyPart.HasValue)
@@ -281,9 +282,9 @@ namespace MiniGame
 
                         List<Dictionary<string, string>> arr;
 
-                        arr = bodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.Weapon_inventory;
+                        arr = bodyPart != BodyPart.Weapon ? _inventory.Armor : _inventory.WeaponInventory;
 
-                        _inventory.EquipClothest(arr.ElementAt(arr.Count - 1), arr.Count - 1);
+                        _inventory.EquipClothes(arr.ElementAt(arr.Count - 1), arr.Count - 1);
                     }
                     else if (unitsForSale.HasValue)
                     {
@@ -291,43 +292,45 @@ namespace MiniGame
                         _inventory.UseItem(_inventory.Other[_inventory.Other.Count - 1]);
                     }
                     else
-                        throw new ArgumentException("didn't have argument bodyPart or unitsForSale");
+                        throw new ArgumentException("Argument bodyPart or unitsForSale is missing");
                     break;
             }
         }
 
-        public void FightingWhitEnemy(Enemy enemy)
+        public void FightingWithEnemy(Enemy enemy)
         {
-            Console.WriteLine($"What will you do?");
+            if (enemy.Health == 0)
+                return;
 
-            string Res = AskQuestion.Main(
-                "Look your statistic: S;" +
-                "\nAuto fighting: U;" +
-                "\nLook inventory: I;" +
-                "\nLook opponent's static: O;" +
-                "\nAttack him: A", 
+            Console.WriteLine("What will you do?");
+
+            string Response = AskQuestion.Main(
+                "Look at your statistics: S;" +
+                "\nAuto fight: U;" +
+                "\nLook at inventory: I;" +
+                "\nLook at opponent's statistics: O;" +
+                "\nAttack: A",
                 "S", "I", "O", "A", "U"
                 );
 
-            switch (Res)
+            switch (Response)
             {
                 case "S":
-                    _player.ShowStatistic();
+                    _player.ShowStatistics();
                     break;
                 case "I":
-                    _inventory.Show_inventory();
+                    _inventory.ShowInventory();
                     break;
                 case "O":
-                    enemy.ShowStatistic();
+                    enemy.ShowStatistics();
                     break;
                 case "U":
-                    while(enemy.Health != 0 || _player.Health != 0)
+                    while (enemy.Health != 0 && _player.Health != 0)
                     {
-                        if(enemy.Damage + 3 - _player.Armor >= _player.Health && enemy.Health > _player.Damage - 3 - enemy.Armor)
+                        if (enemy.Damage + 3 - _player.Armor >= _player.Health && enemy.Health > _player.Damage - 3 - enemy.Armor)
                         {
-                            Console.WriteLine("If you continue auto fighting, you can die");
-
-                            if (AskQuestion.Main("Are you sure want to continue auto fighting. Y/N", "Y", "N") == "N")
+                            Console.WriteLine("If you continue auto fighting, you might die");
+                            if (AskQuestion.Main("Are you sure you want to continue auto fighting? Y/N", "Y", "N") == "N")
                                 break;
                         }
                         Attack(enemy);
@@ -338,26 +341,26 @@ namespace MiniGame
                     break;
             }
 
-            FightingWhitEnemy(enemy);
+            FightingWithEnemy(enemy);
         }
 
         private void Attack(Enemy enemy)
         {
             int EntityDamage = enemy.TakeDamage(_player.AttackSomebody());
-            Console.WriteLine($"You attacked him for {EntityDamage}hp, him hp is {enemy.GetHealth()}\n");
+            Console.WriteLine($"You attacked them for {EntityDamage}hp; their hp is {enemy.GetHealth()}\n");
 
             if (enemy.Health == 0)
             {
-                Console.WriteLine($"You killed the opponent your hp is {_player.GetHealth()}");
+                Console.WriteLine($"You killed the opponent; your hp is {_player.GetHealth()}");
                 return;
             }
 
             EntityDamage = _player.TakeDamage(enemy.AttackSomebody());
-            Console.WriteLine($"He attacked you for {EntityDamage}hp, your hp is {_player.GetHealth()}\n");
+            Console.WriteLine($"He attacked you for {EntityDamage}hp; your hp is {_player.GetHealth()}\n");
 
             if (_player.Health == 0)
             {
-                _player.ShowStatistic();
+                _player.ShowStatistics();
                 Console.WriteLine("You died");
                 Environment.Exit(0);
             }
