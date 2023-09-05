@@ -1,5 +1,7 @@
 ﻿using MiniGame.Enums;
+using MiniGame.Models;
 using MiniGame.Untils;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +10,91 @@ namespace MiniGame
 {
     internal class MainLogic
     {
-        private readonly Player _player = new();
+        private readonly Player _player;
         private readonly Inventory _inventory;
         Random random = new Random();
 
+        private bool _madeRecentlySave = false;
+
         public MainLogic()
         {
-            _inventory = new(_player);
+            if (!File.Exists("save.json"))
+                File.Create("save.json").Close();
+
+            string JsonData = File.ReadAllText("save.json");
+
+            Console.WriteLine("\nPlease, choose an action");
+            string Response = AskQuestion.Main("Load the save: L;\nStart new game: N;\nExit from game: E;", "L", "N", "E");
+
+            switch (Response)
+            {
+                case "E":
+                    return;
+                case "L":
+                    if (string.IsNullOrEmpty(JsonData))
+                    {
+                        Response = AskQuestion.Main("You haven't save. Would you like to start new game? Y/N", "Y", "N");
+                        if (Response == "N")
+                            return;
+
+                        Console.WriteLine("When you got up, you saw that you are in dungeon, and you must go out from here!");
+
+                        _player = new();
+                        _inventory = new(_player);
+
+                        break;
+                    }
+
+                    Save SaveData = JsonConvert.DeserializeObject<Save>(JsonData);
+
+                    _player = new Player(SaveData.Level, SaveData.Health, SaveData.StartHealth, 
+                        SaveData.Armor, SaveData.Damage, SaveData.CompletedRooms, 
+                        SaveData.NeedCompletedRoomsForNextLevel, SaveData.Money);
+                    _inventory = new(_player, SaveData.ArmorInventory, SaveData.WeaponInventory, SaveData.Other, SaveData.Equipped);
+                    break;
+                case "N":
+                    Console.WriteLine("When you got up, you saw that you are in dungeon, and you must go out from here!");
+
+                    _player = new();
+                    _inventory = new(_player);
+                    break;
+            }
+
+            GoNextRoom();
+        }
+
+        public void Menu()
+        {
+            Console.WriteLine("\nPlease, choose an action");
+
+            string Response = AskQuestion.Main("Exit from game: E;\nContinue game: C;\nSave game: S;", "E", "C", "S");
+
+            switch(Response)
+            {
+                case "E":
+                    if(_madeRecentlySave == false)
+                    {
+                        Console.WriteLine("If you will continue, you will lose your progres. Are you sure want continue?");
+
+                        Response = AskQuestion.Main("Continue: C;\nBack: B;\nMake Save and exit: S", "C", "B", "S");
+
+                        if (Response == "B")
+                            break;
+                        else if(Response == "S")
+                            MakeSave();
+                    }
+                    Environment.Exit(0);
+                    break;
+                case "C":
+                    _madeRecentlySave = false;
+                    return;
+                case "S":
+                    MakeSave();
+                    _madeRecentlySave = true;
+                    break;
+            }
+
+            Menu();
         }
 
         public void WhereGo()
@@ -67,7 +147,7 @@ namespace MiniGame
         {
             Console.WriteLine("\nPlease, choose an action");
 
-            string Response = AskQuestion.Main("Look at statistics: S;\nLook at inventory: I;\nContinue your way: W;", "S", "I", "W");
+            string Response = AskQuestion.Main("Look at statistics: S;\nLook at inventory: I;\nContinue your way: W;\nGo to menu: E", "S", "I", "W", "E");
 
             switch (Response)
             {
@@ -79,6 +159,9 @@ namespace MiniGame
                     break;
                 case "I":
                     _inventory.ShowInventory();
+                    break;
+                case "E":
+                    Menu();
                     break;
             }
 
@@ -364,6 +447,32 @@ namespace MiniGame
                 Console.WriteLine("You died");
                 Environment.Exit(0);
             }
+        }
+
+        public void MakeSave()
+        {
+            File.WriteAllText("save.json", string.Empty);
+
+            var saveData = new Save
+            {
+                Level = _player.Level,
+                Health = _player.Health,
+                StartHealth = _player.StartHealth,
+                Armor = _player.Armor,
+                Damage = _player.Damage,
+                CompletedRooms = _player.CompletedRooms,
+                NeedCompletedRoomsForNextLevel = _player.NeedCompletedRoomsForNextLevel,
+                Money = _player.Money,
+                ArmorInventory = _inventory.Armor,
+                WeaponInventory = _inventory.WeaponInventory,
+                Other = _inventory.Other,
+                Equipped = _inventory.Equipped
+            };
+
+            string jsonData = JsonConvert.SerializeObject(saveData, Formatting.Indented);
+            File.WriteAllText("save.json", jsonData);
+
+            Console.WriteLine("game saved");
         }
     }
 }

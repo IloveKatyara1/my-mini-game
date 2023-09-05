@@ -5,12 +5,22 @@ namespace MiniGame
     internal class Player : Entity
     {
         public int CompletedRooms { get; private set; } = 0;
-        private int _needCompletedRoomsForNextLevel = 1;
+        public int NeedCompletedRoomsForNextLevel { get; private set; } = 1;
         public int Level { get; private set; } = 1;
         public int Money { get; private set; } = 0;
 
-        public Player() : base(100, 0, 10)
+        public Player() : base(health: 100, armor: 0, damage: 10)
         {
+        }
+
+        public Player(int level, int health, int startHealth, 
+                      int armor, int damage, int completedRooms, 
+                      int needCompletedRoomsForNextLevel, int money) : base(health, armor, damage, startHealth)
+        {
+            Level = level;
+            CompletedRooms = completedRooms;
+            NeedCompletedRoomsForNextLevel = needCompletedRoomsForNextLevel;
+            Money = money;
         }
 
         public void ModifyMoney(int units)
@@ -39,7 +49,7 @@ namespace MiniGame
                 $"\nDamage: {Damage}" +
                 $"\nCompleted rooms: {CompletedRooms}" +
                 $"\nYour level: {Level}" +
-                $"\nRooms needed to complete for the next level: {_needCompletedRoomsForNextLevel - CompletedRooms};" +
+                $"\nRooms needed to complete for the next level: {NeedCompletedRoomsForNextLevel - CompletedRooms};" +
                 $"\nYou have {Money} money.");
         }
 
@@ -47,11 +57,11 @@ namespace MiniGame
         {
             CompletedRooms++;
 
-            if (_needCompletedRoomsForNextLevel == CompletedRooms)
+            if (NeedCompletedRoomsForNextLevel == CompletedRooms)
             {
-                _needCompletedRoomsForNextLevel *= 3;
+                NeedCompletedRoomsForNextLevel *= 3;
 
-                Console.WriteLine($"Your level has been upgraded. Your new level is {++Level}. You need to complete {_needCompletedRoomsForNextLevel - CompletedRooms} rooms for the next upgrade.");
+                Console.WriteLine($"Your level has been upgraded. Your new level is {++Level}. You need to complete {NeedCompletedRoomsForNextLevel - CompletedRooms} rooms for the next upgrade.");
 
                 base.StartHealth++;
                 base.Health = base.StartHealth;

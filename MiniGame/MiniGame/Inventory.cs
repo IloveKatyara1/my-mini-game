@@ -32,6 +32,16 @@ namespace MiniGame
             {BodyPart.Weapon, new Dictionary<string, string> { { "name", "Toothpick" }, { "units", "1" }, { "type", "damage" }, { "unitsForSale", "1" } } }
         };
 
+        public Inventory(Player player, List<Dictionary<string, string>> armor, List<Dictionary<string, string>> weaponInventory, List<Dictionary<string, string>> other, Dictionary<BodyPart, Dictionary<string, string>> equipped)
+        {
+            _player = player;
+
+            Armor = armor;
+            WeaponInventory = weaponInventory;
+            Other = other;
+            Equipped = equipped;
+        }
+
         public Inventory(Player player)
         {
             _player = player;

@@ -23,6 +23,14 @@ namespace MiniGame
             Damage = damage;
         }
 
+        public Entity(int health, int armor, int damage, int startHealth)
+        {
+            StartHealth = startHealth;
+            Health = health;
+            Armor = armor;
+            Damage = damage;
+        }
+
         public int TakeDamage(int damage)
         {
             damage -= Armor;
